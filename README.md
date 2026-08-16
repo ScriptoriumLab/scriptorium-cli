@@ -1,5 +1,7 @@
 # Scriptorium CLI
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 > A cross-platform developer toolchain for building, running, testing, and maintaining Scriptorium development environments.
 
 Scriptorium CLI is designed to provide a single, consistent entry point for common development workflows.
