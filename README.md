@@ -1,4 +1,3 @@
-```markdown
 # Scriptorium CLI
 
 > A cross-platform developer toolchain for building, running, testing, and maintaining Scriptorium development environments.
