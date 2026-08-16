@@ -8,15 +8,18 @@ import (
 )
 
 var cli = &cobra.Command{
-	Use:   "scriptorium-cli",
-	Short: "A CLI too for enhancing the Scriptorium IME Developer Experience",
-	Long:  "A CLI tool for enhancing the Scriptorium IME Developer Experience",
+	Use:   "orium",
+	Short: "Developer toolchain for Scriptorium",
+	Long: `Orium is the developer toolchain for Scriptorium.
+
+It provides a unified command-line interface for building, running,
+testing, diagnosing, and maintaining local development workflows.`,
 }
 
 var greetingCmd = &cobra.Command{
 	Use:   "greet",
-	Short: "Prints a greeting message",
-	Long:  "Prints a greeting message to the console",
+	Short: "Print a greeting message",
+	Long:  "Print a simple greeting message from Orium.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Hello, Scriptorium!")
 	},
