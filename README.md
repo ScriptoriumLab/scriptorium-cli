@@ -1,3 +1,4 @@
+```markdown
 # Scriptorium CLI
 
 > A cross-platform developer toolchain for building, running, testing, and maintaining Scriptorium development environments.
@@ -9,6 +10,8 @@ Instead of manually switching between repositories, running build commands, star
 The goal is simple:
 
 > **Make local development reproducible, observable, and easy to operate.**
+
+The command-line tool is exposed as **`orium`**, a short and distinctive name derived from Scriptorium.
 
 ---
 
@@ -26,6 +29,42 @@ Scriptorium CLI aims to:
 
 ---
 
+## Technology
+
+Scriptorium CLI is implemented in **Go**.
+
+Command-line parsing and command organization are built with [Cobra](https://github.com/spf13/cobra).
+
+The project intentionally starts with a small structure and will grow incrementally as real development workflows introduce new responsibilities and boundaries.
+
+---
+
+## Building
+
+Development is currently focused on **Windows**.
+
+To build the CLI on Windows:
+
+```powershell
+go build -o orium.exe
+```
+
+Then run:
+
+```powershell
+.\orium.exe --help
+```
+
+For example:
+
+```powershell
+.\orium.exe greet
+```
+
+Support for additional platforms will be added as the toolchain evolves.
+
+---
+
 ## Planned Commands
 
 The command set will evolve as development needs grow.
@@ -33,15 +72,15 @@ The command set will evolve as development needs grow.
 Initial ideas include:
 
 ```text
-sl dev
-sl test
-sl doctor
-sl health
-sl perf
-sl clean
+orium dev
+orium test
+orium doctor
+orium health
+orium perf
+orium clean
 ```
 
-### `sl dev`
+### `orium dev`
 
 Prepare and start a complete local development environment.
 
@@ -53,23 +92,23 @@ The initial workflow is expected to:
 - wait while manual testing is performed
 - clean up automatically when the session ends
 
-### `sl test`
+### `orium test`
 
 Build relevant components and run their test suites, presenting a single aggregated result.
 
-### `sl doctor`
+### `orium doctor`
 
 Inspect the local development environment and report missing or invalid prerequisites.
 
-### `sl health`
+### `orium health`
 
 Inspect a running development environment and report the current health of its components.
 
-### `sl perf`
+### `orium perf`
 
 Run performance-related workflows and benchmarks.
 
-### `sl clean`
+### `orium clean`
 
 Remove temporary development state and restore the environment to a clean state.
 
@@ -83,13 +122,15 @@ It is treated as a long-lived engineering project with explicit responsibilities
 
 The implementation will grow incrementally from real development needs rather than attempting to predict every future use case upfront.
 
+Cross-platform support is part of the long-term direction. Development currently focuses on Windows, with support for additional platforms planned as the broader toolchain evolves.
+
 ---
 
 ## Status
 
 This project is in its very early stages.
 
-The first milestone is to establish the basic CLI and implement the initial development workflow.
+The first milestone is to establish the basic CLI and implement the initial Windows development workflow.
 
 Commands, structure, and behavior are expected to evolve rapidly during the early versions.
 
@@ -103,4 +144,4 @@ See `LICENSE` for details.
 
 ---
 
-Copyright © 2026 ScriptoriumLab.
+*Copyright © 2026 ScriptoriumLab.*
