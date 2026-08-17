@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -33,8 +35,17 @@ var greetingCmd = &cobra.Command{
 	},
 }
 
-func ensureVMAvailable() {
+func ensureVMAvailable() error {
 	fmt.Println("Ensuring Sandbox is available...")
+	cmd := exec.Command("vmrun")
+
+	if err := cmd.Run(); err != nil {
+		if _, ok := errors.AsType[*exec.Error](err); ok {
+			return fmt.Errorf("VMware CLI 'vmrun' is not available: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func buildScriptorium() {
@@ -64,7 +75,10 @@ var devCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch devEnv(env) {
 		case devEnvVM:
-			ensureVMAvailable()
+			if err := ensureVMAvailable(); err != nil {
+				return err
+			}
+
 			buildScriptorium()
 			runAllTests()
 			loadConfig()
