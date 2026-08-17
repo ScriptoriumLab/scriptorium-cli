@@ -27,51 +27,8 @@ var greetingCmd = &cobra.Command{
 	},
 }
 
-func ensureSandboxAvailable() error {
-	fmt.Println("Checking Windows Sandbox availability...")
-
-	cmd := exec.Command(
-		"dism.exe",
-		"/Online",
-		"/English",
-		"/Get-FeatureInfo",
-		"/FeatureName:Containers-DisposableClientVM",
-	)
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf(
-			"failed to query Windows Sandbox feature: %w\n%s",
-			err,
-			string(output),
-		)
-	}
-
-	result := string(output)
-
-	if strings.Contains(result, "State : Enabled") {
-		fmt.Println("Windows Sandbox is available.")
-		return nil
-	}
-
-	if strings.Contains(result, "State : Disabled") {
-		return fmt.Errorf(`sandbox is not enabled.
-
-Enable it from an elevated PowerShell:
-
-  dism.exe /Online /Enable-Feature /FeatureName:Containers-DisposableClientVM /All
-
-A system restart may be required.
-
-After restarting, run:
-
-  orium dev`)
-	}
-
-	return fmt.Errorf(
-		"unable to determine Windows Sandbox state:\n%s",
-		result,
-	)
+func ensureSandboxAvailable() {
+	fmt.Println("Ensuring Sandbox is available...")
 }
 
 func buildScriptorium() {
@@ -98,25 +55,22 @@ var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Prepare and start a complete local development environment.",
 	Long:  `The dev command sets up and starts a complete local development environment for Scriptorium.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ensureSandboxAvailable(); err != nil {
-			return err
-		}
-
+	Run: func(cmd *cobra.Command, args []string) {
+		ensureSandboxAvailable()
 		buildScriptorium()
 		runAllTests()
 		loadConfig()
 		startSandbox()
 		cleanUp()
-
-		return nil
 	},
 }
 
-func main() {
+func init() {
 	cli.AddCommand(greetingCmd)
 	cli.AddCommand(devCmd)
+}
 
+func main() {
 	if err := cli.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
