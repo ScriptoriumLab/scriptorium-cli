@@ -15,6 +15,8 @@ const (
 
 var env string
 
+// TODO: Discover vmrun dynamically instead of relying on the default
+// VMware Workstation installation path.
 const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 
 var cli = &cobra.Command{
