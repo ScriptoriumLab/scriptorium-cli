@@ -1,10 +1,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -16,6 +14,8 @@ const (
 )
 
 var env string
+
+const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 
 var cli = &cobra.Command{
 	Use:   "orium",
@@ -37,12 +37,12 @@ var greetingCmd = &cobra.Command{
 
 func ensureVMAvailable() error {
 	fmt.Println("Ensuring Sandbox is available...")
-	cmd := exec.Command("vmrun")
-
-	if err := cmd.Run(); err != nil {
-		if _, ok := errors.AsType[*exec.Error](err); ok {
-			return fmt.Errorf("VMware CLI 'vmrun' is not available: %w", err)
+	if _, err := os.Stat(vmrunPath); err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", vmrunPath)
 		}
+
+		return fmt.Errorf("failed to check VMware CLI: %w", err)
 	}
 
 	return nil
