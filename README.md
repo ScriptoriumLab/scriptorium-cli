@@ -85,13 +85,60 @@ orium clean
 
 Prepare and start a complete local development environment.
 
-The initial workflow is expected to:
+The development workflow runs Scriptorium inside an isolated, disposable environment so that platform components such as the Windows TSF integration can be registered and exercised without modifying the host development environment unnecessarily.
 
-- prepare the required environment
-- register platform components
-- start required processes
+The environment can be selected with:
+
+```shell
+orium dev --env <environment>
+```
+
+The current default is:
+
+```shell
+orium dev --env vm
+```
+
+Running:
+
+```shell
+orium dev
+```
+
+is therefore currently equivalent to:
+
+```shell
+orium dev --env vm
+```
+
+The first implementation uses a VMware-based Windows virtual machine as the disposable development environment.
+
+Windows Sandbox and Hyper-V were explored during the initial implementation. Both provide useful isolation, but they are more tightly coupled to the host Windows edition and Windows virtualization stack. The current development machine cannot reliably use Windows Sandbox, and requiring it would also exclude contributors whose Windows environments do not support it.
+
+VMware was therefore selected as the initial implementation because it provides a more broadly available and predictable environment for contributors.
+
+This is an implementation choice rather than a permanent architectural constraint.
+
+The `--env` option intentionally leaves room for additional development environments in the future, for example:
+
+```shell
+orium dev --env sandbox
+orium dev --env hyperv
+```
+
+These environments are not currently implemented.
+
+Future contributors who prefer Windows Sandbox, Hyper-V, or another suitable environment can add support without changing the user-facing purpose of `orium dev`.
+
+The initial workflow is expected to:
+- prepare or reset the disposable development environment
+- make locally built Scriptorium artifacts available to it
+- register required platform components
+- start the Scriptorium runtime
 - wait while manual testing is performed
-- clean up automatically when the session ends
+- discard or reset the environment when the session ends
+
+The environment strategy is expected to continue evolving as the development workflow and contributor needs become clearer.
 
 ### `orium test`
 
