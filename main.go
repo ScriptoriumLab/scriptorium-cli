@@ -3,11 +3,17 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+type devEnv string
+
+const (
+	devEnvVM devEnv = "vm"
+)
+
+var env string
 
 var cli = &cobra.Command{
 	Use:   "orium",
@@ -27,7 +33,7 @@ var greetingCmd = &cobra.Command{
 	},
 }
 
-func ensureSandboxAvailable() {
+func ensureVMAvailable() {
 	fmt.Println("Ensuring Sandbox is available...")
 }
 
@@ -55,18 +61,25 @@ var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Prepare and start a complete local development environment.",
 	Long:  `The dev command sets up and starts a complete local development environment for Scriptorium.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		ensureSandboxAvailable()
-		buildScriptorium()
-		runAllTests()
-		loadConfig()
-		startSandbox()
-		cleanUp()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		switch devEnv(env) {
+		case devEnvVM:
+			ensureVMAvailable()
+			buildScriptorium()
+			runAllTests()
+			loadConfig()
+			startSandbox()
+			cleanUp()
+			return nil
+		default:
+			return fmt.Errorf("unsupported development environment: %s", env)
+		}
 	},
 }
 
 func init() {
 	cli.AddCommand(greetingCmd)
+	devCmd.Flags().StringVarP(&env, "env", "E", "vm", "development environment to use; currently only 'vm' is supported, with more environments planned")
 	cli.AddCommand(devCmd)
 }
 
