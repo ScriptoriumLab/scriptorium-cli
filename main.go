@@ -179,10 +179,6 @@ func waitForVM(config *Config) error {
 	}
 }
 
-func cleanUp() {
-	fmt.Println("Cleaning up temporary files and resources...")
-}
-
 var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Prepare and start a complete local development environment.",
@@ -214,7 +210,10 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			cleanUp()
+			if err := resetVMEnv(config); err != nil {
+				return err
+			}
+
 			return nil
 		default:
 			return fmt.Errorf("unsupported development environment: %s", env)
