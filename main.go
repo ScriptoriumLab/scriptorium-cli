@@ -25,7 +25,7 @@ const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
 type Config struct {
-	VMEncriptionPassword string
+	VMEncryptionPassword string
 	GuestUsername        string
 	GuestPassword        string
 }
@@ -49,7 +49,7 @@ var greetingCmd = &cobra.Command{
 }
 
 func ensureVMAvailable() error {
-	fmt.Println("Ensuring Sandbox is available...")
+	fmt.Println("Ensuring VMware is available...")
 	if _, err := os.Stat(vmrunPath); err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", vmrunPath)
@@ -77,12 +77,12 @@ func loadConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		VMEncriptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
+		VMEncryptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
 		GuestUsername:        os.Getenv("ORIUM_GUEST_USERNAME"),
 		GuestPassword:        os.Getenv("ORIUM_GUEST_PASSWORD"),
 	}
 
-	if config.VMEncriptionPassword == "" {
+	if config.VMEncryptionPassword == "" {
 		return nil, fmt.Errorf("ORIUM_VM_ENCRYPTION_PASSWORD is not configured")
 	}
 
@@ -98,12 +98,12 @@ func loadConfig() (*Config, error) {
 }
 
 func startVM(config *Config) error {
-	fmt.Println("Starting the sandbox environment...")
+	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
 		vmrunPath,
 		"-T", "ws",
-		"-vp", config.VMEncriptionPassword,
+		"-vp", config.VMEncryptionPassword,
 		"start",
 		devVMPath,
 		"gui",
@@ -113,7 +113,7 @@ func startVM(config *Config) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to start developement VM: %w", err)
+		return fmt.Errorf("failed to start development VM: %w", err)
 	}
 
 	return nil
