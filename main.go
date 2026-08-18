@@ -101,7 +101,7 @@ func loadConfig() (*Config, error) {
 	return config, nil
 }
 
-func setupVM(config *Config) error {
+func resetVMEnv(config *Config) error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
@@ -202,7 +202,7 @@ var devCmd = &cobra.Command{
 			buildScriptorium()
 			runAllTests()
 
-			if err := setupVM(config); err != nil {
+			if err := resetVMEnv(config); err != nil {
 				return err
 			}
 
