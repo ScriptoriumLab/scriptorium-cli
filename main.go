@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -160,6 +161,24 @@ func isVMRunning(config *Config) (bool, error) {
 	return strings.Contains(string(output), devVMPath), nil
 }
 
+func waitForVM(config *Config) error {
+	fmt.Println("Waiting for the development VM to stop...")
+
+	for {
+		running, err := isVMRunning(config)
+		if err != nil {
+			return err
+		}
+
+		if !running {
+			fmt.Println("Development VM stopped.")
+			return nil
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+
 func cleanUp() {
 	fmt.Println("Cleaning up temporary files and resources...")
 }
@@ -191,11 +210,9 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			running, err := isVMRunning(config)
-			if err != nil {
+			if err := waitForVM(config); err != nil {
 				return err
 			}
-			fmt.Printf("Development VM running: %t\n", running)
 
 			cleanUp()
 			return nil
