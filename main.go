@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"fmt"
 	"os"
 	"os/exec"
@@ -143,6 +144,22 @@ func startVM(config *Config) error {
 	return nil
 }
 
+func isVMRunning(config *Config) (bool, error) {
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"list",
+	)
+
+	output, err := cmd.Output()
+	if err != nil {
+		return false, fmt.Errorf("failed to list running VMs: %w", err)
+	}
+
+	return strings.Contains(string(output), devVMPath), nil
+}
+
 func cleanUp() {
 	fmt.Println("Cleaning up temporary files and resources...")
 }
@@ -173,6 +190,12 @@ var devCmd = &cobra.Command{
 			if err := startVM(config); err != nil {
 				return err
 			}
+
+			running, err := isVMRunning(config)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Development VM running: %t\n", running)
 
 			cleanUp()
 			return nil
