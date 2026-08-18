@@ -179,6 +179,28 @@ func waitForVM(config *Config) error {
 	}
 }
 
+func stopVM(config *Config) error {
+	fmt.Println("Stopping the development VM...")
+
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"stop",
+		devVMPath,
+		"hard",
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to stop development VM: %w", err)
+	}
+
+	return nil
+}
+
 var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Prepare and start a complete local development environment.",
