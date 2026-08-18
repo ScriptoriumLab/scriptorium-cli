@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +20,15 @@ var env string
 // TODO: Discover vmrun dynamically instead of relying on the default
 // VMware Workstation installation path.
 const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
+
+// TODO: Make the development VM path configurable.
+const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
+
+type Config struct {
+	VMEncriptionPassword string
+	GuestUsername        string
+	GuestPassword        string
+}
 
 var cli = &cobra.Command{
 	Use:   "orium",
@@ -58,12 +69,54 @@ func runAllTests() {
 	fmt.Println("Running all tests under the Scriptorium IME.")
 }
 
-func loadConfig() {
+func loadConfig() (*Config, error) {
 	fmt.Println("Loading configuration files and environment variables...")
+
+	if err := godotenv.Load(); err != nil {
+		return nil, fmt.Errorf("failed to load .env file: %w", err)
+	}
+
+	config := &Config{
+		VMEncriptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
+		GuestUsername:        os.Getenv("ORIUM_GUEST_USERNAME"),
+		GuestPassword:        os.Getenv("ORIUM_GUEST_PASSWORD"),
+	}
+
+	if config.VMEncriptionPassword == "" {
+		return nil, fmt.Errorf("ORIUM_VM_ENCRYPTION_PASSWORD is not configured")
+	}
+
+	if config.GuestUsername == "" {
+		return nil, fmt.Errorf("ORIUM_GUEST_USERNAME is not configured")
+	}
+
+	if config.GuestPassword == "" {
+		return nil, fmt.Errorf("ORIUM_GUEST_PASSWORD is not configured")
+	}
+
+	return config, nil
 }
 
-func startVM() {
+func startVM(config *Config) error {
 	fmt.Println("Starting the sandbox environment...")
+
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncriptionPassword,
+		"start",
+		devVMPath,
+		"gui",
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to start developement VM: %w", err)
+	}
+
+	return nil
 }
 
 func cleanUp() {
@@ -83,8 +136,16 @@ var devCmd = &cobra.Command{
 
 			buildScriptorium()
 			runAllTests()
-			loadConfig()
-			startVM()
+
+			config, err := loadConfig()
+			if err != nil {
+				return err
+			}
+
+			if err := startVM(config); err != nil {
+				return err
+			}
+
 			cleanUp()
 			return nil
 		default:
