@@ -24,6 +24,8 @@ const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 // TODO: Make the development VM path configurable.
 const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
+const devVMSnapshot = "baseline"
+
 type Config struct {
 	VMEncryptionPassword string
 	GuestUsername        string
@@ -97,6 +99,28 @@ func loadConfig() (*Config, error) {
 	return config, nil
 }
 
+func setupVM(config *Config) error {
+	fmt.Println("Resetting the development VM to baseline...")
+
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"revertToSnapshot",
+		devVMPath,
+		devVMSnapshot,
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to reset development VM to baseline: %w", err)
+	}
+
+	return nil
+}
+
 func startVM(config *Config) error {
 	fmt.Println("Starting the development VM...")
 
@@ -134,11 +158,15 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
+			config, err := loadConfig()
+			if err != nil {
+				return err
+			}
+
 			buildScriptorium()
 			runAllTests()
 
-			config, err := loadConfig()
-			if err != nil {
+			if err := setupVM(config); err != nil {
 				return err
 			}
 
