@@ -62,7 +62,7 @@ func loadConfig() {
 	fmt.Println("Loading configuration files and environment variables...")
 }
 
-func startSandbox() {
+func startVM() {
 	fmt.Println("Starting the sandbox environment...")
 }
 
@@ -84,7 +84,7 @@ var devCmd = &cobra.Command{
 			buildScriptorium()
 			runAllTests()
 			loadConfig()
-			startSandbox()
+			startVM()
 			cleanUp()
 			return nil
 		default:
