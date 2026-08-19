@@ -31,11 +31,20 @@ const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-d
 // TODO: Make the development VM snapshot configurable.
 const devVMSnapshot = "baseline"
 
+// TODO: Make the Scriptorium Project root directory configurable
+const scriptoriumProjectRootDir = `D:\Projects\Scriptorium`
+
+const (
+	scriptoriumInkstoneProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-inkstone`
+	scriptoriumProjectDictionaryDir = scriptoriumInkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+)
+
 // TODO: Make the Scriptorium product root directory configurable.
 const scriptoriumProductRootDir = `C:\Users\dev\Scriptorium`
 
 const (
 	scriptoriumProductLocalDir = scriptoriumProductRootDir + `\Local`
+	scriptoriumProductDictionaryDir = scriptoriumProductLocalDir + `\pinyin_dictionary.txt`
 	scriptoriumProductLogDir = scriptoriumProductRootDir + `\Log`
 )
 
@@ -207,6 +216,25 @@ func setupScriptoriumEnv(config *Config) error {
 
 	if err := createLocalCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
+	}
+
+	copyDictCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"CopyFileFromHostToGuest",
+		devVMPath,
+		scriptoriumProjectDictionaryDir,
+		scriptoriumProductDictionaryDir,
+	)
+
+	copyDictCmd.Stdout = os.Stdout
+	copyDictCmd.Stderr = os.Stderr
+
+	if err := copyDictCmd.Run(); err != nil {
+		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
 	return nil
