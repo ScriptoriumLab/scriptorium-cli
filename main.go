@@ -1,10 +1,12 @@
 package main
 
 import (
-	"strings"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -161,24 +163,6 @@ func isVMRunning(config *Config) (bool, error) {
 	return strings.Contains(string(output), devVMPath), nil
 }
 
-func waitForVM(config *Config) error {
-	fmt.Println("Waiting for the development VM to stop...")
-
-	for {
-		running, err := isVMRunning(config)
-		if err != nil {
-			return err
-		}
-
-		if !running {
-			fmt.Println("Development VM stopped.")
-			return nil
-		}
-
-		time.Sleep(1 * time.Second)
-	}
-}
-
 func stopVM(config *Config) error {
 	fmt.Println("Stopping the development VM...")
 
@@ -199,6 +183,41 @@ func stopVM(config *Config) error {
 	}
 
 	return nil
+}
+
+func waitForVM(config *Config) error {
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+	)
+	defer stop()
+
+	fmt.Println("Waiting for the development VM to stop...")
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("Interrupt received. Stopping development VM...")
+
+			if err := stopVM(config); err != nil {
+				return err
+			}
+
+			return nil
+		default:
+			running, err := isVMRunning(config)
+			if err != nil {
+				return err
+			}
+
+			if !running {
+				fmt.Println("Development VM stopped.")
+				return nil
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
 }
 
 var devCmd = &cobra.Command{
