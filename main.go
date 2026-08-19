@@ -28,7 +28,16 @@ const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 // TODO: Make the development VM path configurable.
 const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
+// TODO: Make the development VM snapshot configurable.
 const devVMSnapshot = "baseline"
+
+// TODO: Make the Scriptorium product root directory configurable.
+const scriptoriumProductRootDir = `C:\Users\dev\Scriptorium`
+
+const (
+	scriptoriumProductLocalDir = scriptoriumProductRootDir + `\Local`
+	scriptoriumProductLogDir = scriptoriumProductRootDir + `\Log`
+)
 
 type Config struct {
 	VMEncryptionPassword string
@@ -163,6 +172,46 @@ func isVMRunning(config *Config) (bool, error) {
 	return strings.Contains(string(output), devVMPath), nil
 }
 
+func setupScriptoriumEnv(config *Config) error {
+	createLogCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"createDirectoryInGuest",
+		devVMPath,
+		scriptoriumProductLogDir,
+	)
+
+	createLogCmd.Stdout = os.Stdout
+	createLogCmd.Stderr = os.Stderr
+
+	if err := createLogCmd.Run(); err != nil {
+		return fmt.Errorf("failed to create log directory in VM: %w", err)
+	}
+
+	createLocalCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"createDirectoryInGuest",
+		devVMPath,
+		scriptoriumProductLocalDir,
+	)
+
+	createLocalCmd.Stdout = os.Stdout
+	createLocalCmd.Stderr = os.Stderr
+
+	if err := createLocalCmd.Run(); err != nil {
+		return fmt.Errorf("failed to create local directory in VM: %w", err)
+	}
+
+	return nil
+}
+
 func stopVM(config *Config) error {
 	fmt.Println("Stopping the development VM...")
 
@@ -244,6 +293,10 @@ var devCmd = &cobra.Command{
 			}
 
 			if err := startVM(config); err != nil {
+				return err
+			}
+
+			if err := setupScriptoriumEnv(config); err != nil {
 				return err
 			}
 
