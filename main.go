@@ -37,6 +37,8 @@ const scriptoriumProjectRootDir = `D:\Projects\Scriptorium`
 const (
 	scriptoriumFeltProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-felt`
 
+	scriptoriumBrushProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-brush`
+
 	scriptoriumInkstoneProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-inkstone`
 	scriptoriumProjectDictionaryDir = scriptoriumInkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 )
@@ -148,9 +150,74 @@ func buildAndTestFelt() error {
 	return nil
 }
 
+func buildAndTestBrush() error {
+	fmt.Println("Building and testing Scriptorium Brush...")
+
+	buildDir := scriptoriumBrushProjectRootDir + `\build`
+
+	fmt.Println("Cleaning existing Brush build directory...")
+	if err := os.RemoveAll(buildDir); err != nil {
+		return fmt.Errorf("failed to clean Brush build directory: %w", err)
+	}
+
+	fmt.Println("Configuring Brush...")
+	configureCmd := exec.Command(
+		"cmake",
+		"-S", ".",
+		"-B", "build",
+		"-G", "Ninja",
+		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+	)
+
+	configureCmd.Dir = scriptoriumBrushProjectRootDir
+	configureCmd.Stdout = os.Stdout
+	configureCmd.Stderr = os.Stderr
+
+	if err := configureCmd.Run(); err != nil {
+		return fmt.Errorf("failed to configure Brush: %w", err)
+	}
+
+	fmt.Println("Building Brush...")
+	buildCmd := exec.Command(
+		"cmake",
+		"--build", "build",
+	)
+
+	buildCmd.Dir = scriptoriumBrushProjectRootDir
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+
+	if err := buildCmd.Run(); err != nil {
+		return fmt.Errorf("failed to build Brush: %w", err)
+	}
+
+	fmt.Println("Running Brush tests...")
+	testCmd := exec.Command(
+		"ctest",
+		"--test-dir", "build",
+		"--schedule-random",
+		"--output-on-failure",
+	)
+
+	testCmd.Dir = scriptoriumBrushProjectRootDir
+	testCmd.Stdout = os.Stdout
+	testCmd.Stderr = os.Stderr
+
+	if err := testCmd.Run(); err != nil {
+		return fmt.Errorf("scriptorium brush tests failed: %w", err)
+	}
+
+	return nil
+}
+
 func buildScriptoriumAndRunAllTests() error {
 	fmt.Println("Building Scriptorium and running all tests...")
 	if err := buildAndTestFelt(); err != nil {
+		return err
+	}
+
+	if err := buildAndTestBrush(); err != nil {
 		return err
 	}
 
