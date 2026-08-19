@@ -85,12 +85,9 @@ func ensureVMAvailable() error {
 	return nil
 }
 
-func buildScriptorium() {
-	fmt.Println("Building Scriptorium IME...")
-}
-
-func runAllTests() {
-	fmt.Println("Running all tests under the Scriptorium IME.")
+func buildScriptoriumAndRunAllTests() error {
+	fmt.Println("Building Scriptorium and running all tests...")
+	return nil
 }
 
 func loadConfig() (*Config, error) {
@@ -313,8 +310,9 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			buildScriptorium()
-			runAllTests()
+			if err := buildScriptoriumAndRunAllTests(); err != nil {
+				return err
+			}
 
 			if err := resetVMEnv(config); err != nil {
 				return err
