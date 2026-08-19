@@ -35,6 +35,8 @@ const devVMSnapshot = "baseline"
 const scriptoriumProjectRootDir = `D:\Projects\Scriptorium`
 
 const (
+	scriptoriumFeltProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-felt`
+
 	scriptoriumInkstoneProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-inkstone`
 	scriptoriumProjectDictionaryDir = scriptoriumInkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 )
@@ -85,8 +87,73 @@ func ensureVMAvailable() error {
 	return nil
 }
 
+func buildAndTestFelt() error {
+	fmt.Println("Building and testing Scriptorium Felt...")
+
+	buildDir := scriptoriumFeltProjectRootDir + `\build`
+
+	fmt.Println("Cleaning existing Felt build directory...")
+	if err := os.RemoveAll(buildDir); err != nil {
+		return fmt.Errorf("failed to clean Felt build directory: %w", err)
+	}
+
+	fmt.Println("Configuring Felt...")
+	configureCmd := exec.Command(
+		"cmake",
+		"-S", ".",
+		"-B", "build",
+		"-G", "Ninja",
+		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+	)
+
+	configureCmd.Dir = scriptoriumFeltProjectRootDir
+	configureCmd.Stdout = os.Stdout
+	configureCmd.Stderr = os.Stderr
+
+	if err := configureCmd.Run(); err != nil {
+		return fmt.Errorf("failed to configure Felt: %w", err)
+	}
+
+	fmt.Println("Building Felt...")
+	buildCmd := exec.Command(
+		"cmake",
+		"--build", "build",
+	)
+
+	buildCmd.Dir = scriptoriumFeltProjectRootDir
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+
+	if err := buildCmd.Run(); err != nil {
+		return fmt.Errorf("failed to build Felt: %w", err)
+	}
+
+	fmt.Println("Running Felt tests...")
+	testCmd := exec.Command(
+		"ctest",
+		"--test-dir", "build",
+		"--schedule-random",
+		"--output-on-failure",
+	)
+
+	testCmd.Dir = scriptoriumFeltProjectRootDir
+	testCmd.Stdout = os.Stdout
+	testCmd.Stderr = os.Stderr
+
+	if err := testCmd.Run(); err != nil {
+		return fmt.Errorf("scriptorium felt tests failed: %w", err)
+	}
+
+	return nil
+}
+
 func buildScriptoriumAndRunAllTests() error {
 	fmt.Println("Building Scriptorium and running all tests...")
+	if err := buildAndTestFelt(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
