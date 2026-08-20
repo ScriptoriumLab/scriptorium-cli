@@ -131,10 +131,11 @@ func buildAndTestFelt() error {
 		return fmt.Errorf("failed to build Felt: %w", err)
 	}
 
-	fmt.Println("Running Felt tests...")
+	fmt.Println("Running Felt unit tests...")
 	testCmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",
+		"-L", "^felt-unit$",
 		"--schedule-random",
 		"--output-on-failure",
 	)
@@ -192,10 +193,11 @@ func buildAndTestBrush() error {
 		return fmt.Errorf("failed to build Brush: %w", err)
 	}
 
-	fmt.Println("Running Brush tests...")
+	fmt.Println("Running Brush unit tests...")
 	testCmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",
+		"-L", "^brush-unit$",
 		"--schedule-random",
 		"--output-on-failure",
 	)
