@@ -57,6 +57,7 @@ const (
 type ProjectArtifacts struct {
 	BrushDLL    string
 	InkstoneEXE string
+	InkEXE      string
 }
 
 type Config struct {
@@ -301,7 +302,7 @@ func buildAndTestInkstone() (string, error) {
 	return exe, nil
 }
 
-func buildInk() error {
+func buildInk() (string, error) {
 	fmt.Println("Building Scriptorium Ink...")
 	cmd := exec.Command(
 		"pnpm",
@@ -314,10 +315,11 @@ func buildInk() error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("scriptorium ink build failed: %w", err)
+		return "", fmt.Errorf("scriptorium ink build failed: %w", err)
 	}
 
-	return nil
+	exe := inkProjectRootDir + `\src-tauri\target\release\scriptorium-ink.exe`
+	return exe, nil
 }
 
 func buildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
@@ -336,13 +338,15 @@ func buildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	if err := buildInk(); err != nil {
+	inkExe, err := buildInk()
+	if err != nil {
 		return nil, err
 	}
 
 	return &ProjectArtifacts{
 		BrushDLL: brushDll,
 		InkstoneEXE: inkstoneExe,
+		InkEXE: inkExe,
 	}, nil
 }
 
