@@ -213,6 +213,85 @@ func buildAndTestBrush() error {
 	return nil
 }
 
+func buildAndTestInkstone() error {
+	fmt.Println("Building and testing Scriptorium Inkstone...")
+
+	buildDir := scriptoriumInkstoneProjectRootDir + `\build`
+
+	fmt.Println("Cleaning existing Inkstone build directory...")
+	if err := os.RemoveAll(buildDir); err != nil {
+		return fmt.Errorf("failed to clean Inkstone build directory: %w", err)
+	}
+
+	fmt.Println("Configuring Inkstone...")
+	configureCmd := exec.Command(
+		"cmake",
+		"-S", ".",
+		"-B", "build",
+		"-G", "Ninja",
+		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+	)
+
+	configureCmd.Dir = scriptoriumInkstoneProjectRootDir
+	configureCmd.Stdout = os.Stdout
+	configureCmd.Stderr = os.Stderr
+
+	if err := configureCmd.Run(); err != nil {
+		return fmt.Errorf("failed to configure Inkstone: %w", err)
+	}
+
+	fmt.Println("Building Inkstone...")
+	buildCmd := exec.Command(
+		"cmake",
+		"--build", "build",
+	)
+
+	buildCmd.Dir = scriptoriumInkstoneProjectRootDir
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+
+	if err := buildCmd.Run(); err != nil {
+		return fmt.Errorf("failed to build Inkstone: %w", err)
+	}
+
+	fmt.Println("Running Inkstone unit tests...")
+	unitTestCmd := exec.Command(
+		"ctest",
+		"--test-dir", "build",
+		"-L", "^inkstone-unit$",
+		"--schedule-random",
+		"--output-on-failure",
+	)
+
+	unitTestCmd.Dir = scriptoriumInkstoneProjectRootDir
+	unitTestCmd.Stdout = os.Stdout
+	unitTestCmd.Stderr = os.Stderr
+
+	if err := unitTestCmd.Run(); err != nil {
+		return fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
+	}
+
+	fmt.Println("Running Inkstone integration tests...")
+	integrationTestCmd := exec.Command(
+		"ctest",
+		"--test-dir", "build",
+		"-L", "^inkstone-integration$",
+		"--schedule-random",
+		"--output-on-failure",
+	)
+
+	integrationTestCmd.Dir = scriptoriumInkstoneProjectRootDir
+	integrationTestCmd.Stdout = os.Stdout
+	integrationTestCmd.Stderr = os.Stderr
+
+	if err := integrationTestCmd.Run(); err != nil {
+		return fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
+	}
+
+	return nil
+}
+
 func buildScriptoriumAndRunAllTests() error {
 	fmt.Println("Building Scriptorium and running all tests...")
 	if err := buildAndTestFelt(); err != nil {
@@ -220,6 +299,10 @@ func buildScriptoriumAndRunAllTests() error {
 	}
 
 	if err := buildAndTestBrush(); err != nil {
+		return err
+	}
+
+	if err := buildAndTestInkstone(); err != nil {
 		return err
 	}
 
