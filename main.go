@@ -54,6 +54,10 @@ const (
 	productLogDir = productRootDir + `\Log`
 )
 
+type ProjectArtifacts struct {
+	BrushDLL string
+}
+
 type Config struct {
 	VMEncryptionPassword string
 	GuestUsername        string
@@ -153,14 +157,14 @@ func buildAndTestFelt() error {
 	return nil
 }
 
-func buildAndTestBrush() error {
+func buildAndTestBrush() (string, error) {
 	fmt.Println("Building and testing Scriptorium Brush...")
 
 	buildDir := brushProjectRootDir + `\build`
 
 	fmt.Println("Cleaning existing Brush build directory...")
 	if err := os.RemoveAll(buildDir); err != nil {
-		return fmt.Errorf("failed to clean Brush build directory: %w", err)
+		return "", fmt.Errorf("failed to clean Brush build directory: %w", err)
 	}
 
 	fmt.Println("Configuring Brush...")
@@ -178,7 +182,7 @@ func buildAndTestBrush() error {
 	configureCmd.Stderr = os.Stderr
 
 	if err := configureCmd.Run(); err != nil {
-		return fmt.Errorf("failed to configure Brush: %w", err)
+		return "", fmt.Errorf("failed to configure Brush: %w", err)
 	}
 
 	fmt.Println("Building Brush...")
@@ -192,7 +196,7 @@ func buildAndTestBrush() error {
 	buildCmd.Stderr = os.Stderr
 
 	if err := buildCmd.Run(); err != nil {
-		return fmt.Errorf("failed to build Brush: %w", err)
+		return "", fmt.Errorf("failed to build Brush: %w", err)
 	}
 
 	fmt.Println("Running Brush unit tests...")
@@ -209,10 +213,11 @@ func buildAndTestBrush() error {
 	testCmd.Stderr = os.Stderr
 
 	if err := testCmd.Run(); err != nil {
-		return fmt.Errorf("scriptorium brush tests failed: %w", err)
+		return "", fmt.Errorf("scriptorium brush tests failed: %w", err)
 	}
 
-	return nil
+	artifact := brushProjectRootDir + `\build\ScriptoriumLabIME\scriptorium-brush.dll`
+	return artifact, nil
 }
 
 func buildAndTestInkstone() error {
@@ -313,25 +318,28 @@ func buildInk() error {
 	return nil
 }
 
-func buildScriptoriumAndRunAllTests() error {
+func buildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 	fmt.Println("Building Scriptorium and running all tests...")
 	if err := buildAndTestFelt(); err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := buildAndTestBrush(); err != nil {
-		return err
+	brushDll, err := buildAndTestBrush()
+	if err != nil {
+		return nil, err
 	}
 
 	if err := buildAndTestInkstone(); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := buildInk(); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &ProjectArtifacts{
+		BrushDLL: brushDll,
+	}, nil
 }
 
 func loadConfig() (*Config, error) {
@@ -481,6 +489,10 @@ func setupScriptoriumEnv(config *Config) error {
 	return nil
 }
 
+func deployArtifacts(artifacts *ProjectArtifacts, config *Config) error {
+	return nil
+}
+
 func stopVM(config *Config) error {
 	fmt.Println("Stopping the development VM...")
 
@@ -554,7 +566,8 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := buildScriptoriumAndRunAllTests(); err != nil {
+			artifacts, err := buildScriptoriumAndRunAllTests();
+			if err != nil {
 				return err
 			}
 
@@ -567,6 +580,10 @@ var devCmd = &cobra.Command{
 			}
 
 			if err := setupScriptoriumEnv(config); err != nil {
+				return err
+			}
+
+			if err := deployArtifacts(artifacts, config); err != nil {
 				return err
 			}
 
