@@ -55,7 +55,8 @@ const (
 )
 
 type ProjectArtifacts struct {
-	BrushDLL string
+	BrushDLL    string
+	InkstoneEXE string
 }
 
 type Config struct {
@@ -220,14 +221,14 @@ func buildAndTestBrush() (string, error) {
 	return artifact, nil
 }
 
-func buildAndTestInkstone() error {
+func buildAndTestInkstone() (string, error) {
 	fmt.Println("Building and testing Scriptorium Inkstone...")
 
 	buildDir := inkstoneProjectRootDir + `\build`
 
 	fmt.Println("Cleaning existing Inkstone build directory...")
 	if err := os.RemoveAll(buildDir); err != nil {
-		return fmt.Errorf("failed to clean Inkstone build directory: %w", err)
+		return "", fmt.Errorf("failed to clean Inkstone build directory: %w", err)
 	}
 
 	fmt.Println("Configuring Inkstone...")
@@ -245,7 +246,7 @@ func buildAndTestInkstone() error {
 	configureCmd.Stderr = os.Stderr
 
 	if err := configureCmd.Run(); err != nil {
-		return fmt.Errorf("failed to configure Inkstone: %w", err)
+		return "", fmt.Errorf("failed to configure Inkstone: %w", err)
 	}
 
 	fmt.Println("Building Inkstone...")
@@ -259,7 +260,7 @@ func buildAndTestInkstone() error {
 	buildCmd.Stderr = os.Stderr
 
 	if err := buildCmd.Run(); err != nil {
-		return fmt.Errorf("failed to build Inkstone: %w", err)
+		return "", fmt.Errorf("failed to build Inkstone: %w", err)
 	}
 
 	fmt.Println("Running Inkstone unit tests...")
@@ -276,7 +277,7 @@ func buildAndTestInkstone() error {
 	unitTestCmd.Stderr = os.Stderr
 
 	if err := unitTestCmd.Run(); err != nil {
-		return fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
+		return "", fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
 	}
 
 	fmt.Println("Running Inkstone integration tests...")
@@ -293,10 +294,11 @@ func buildAndTestInkstone() error {
 	integrationTestCmd.Stderr = os.Stderr
 
 	if err := integrationTestCmd.Run(); err != nil {
-		return fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
+		return "", fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
 	}
 
-	return nil
+	exe := inkstoneProjectRootDir + `\build\ScriptoriumLabIME\scriptorium-inkstone.exe`
+	return exe, nil
 }
 
 func buildInk() error {
@@ -329,7 +331,8 @@ func buildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	if err := buildAndTestInkstone(); err != nil {
+	inkstoneExe, err := buildAndTestInkstone()
+	if err != nil {
 		return nil, err
 	}
 
@@ -339,6 +342,7 @@ func buildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 
 	return &ProjectArtifacts{
 		BrushDLL: brushDll,
+		InkstoneEXE: inkstoneExe,
 	}, nil
 }
 
