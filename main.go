@@ -85,15 +85,6 @@ It provides a unified command-line interface for building, running,
 testing, diagnosing, and maintaining local development workflows.`,
 }
 
-var greetingCmd = &cobra.Command{
-	Use:   "greet",
-	Short: "Print a greeting message",
-	Long:  "Print a simple greeting message from Orium.",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello, Scriptorium!")
-	},
-}
-
 func ensureVMAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
 	if _, err := os.Stat(vmrunPath); err != nil {
@@ -770,7 +761,6 @@ var devCmd = &cobra.Command{
 }
 
 func init() {
-	cli.AddCommand(greetingCmd)
 	devCmd.Flags().StringVarP(&env, "env", "E", "vm", "development environment to use; currently only 'vm' is supported, with more environments planned")
 	cli.AddCommand(devCmd)
 }
