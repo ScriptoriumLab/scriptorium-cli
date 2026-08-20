@@ -566,7 +566,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			artifacts, err := buildScriptoriumAndRunAllTests();
+			artifacts, err := buildScriptoriumAndRunAllTests()
 			if err != nil {
 				return err
 			}
