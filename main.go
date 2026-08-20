@@ -21,6 +21,8 @@ const (
 
 var env string
 
+const devUseCaseTaskName = "Scriptorium Dev Use Case"
+
 // TODO: Discover vmrun dynamically instead of relying on the default
 // VMware Workstation installation path.
 const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
@@ -121,7 +123,7 @@ func buildAndTestFelt() error {
 		"-S", ".",
 		"-B", "build",
 		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_BUILD_TYPE=Release",
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
@@ -183,7 +185,7 @@ func buildAndTestBrush() (string, error) {
 		"-S", ".",
 		"-B", "build",
 		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_BUILD_TYPE=Release",
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
@@ -246,7 +248,7 @@ func buildAndTestInkstone() (string, error) {
 		"-S", ".",
 		"-B", "build",
 		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Debug",
+		"-DCMAKE_BUILD_TYPE=Release",
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
@@ -589,6 +591,71 @@ func deployArtifacts(artifacts *ProjectArtifacts, config *Config) error {
 	return nil
 }
 
+func registerBrush(config *Config) error {
+	fmt.Println("Registering Scriptorium Brush...")
+
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"runProgramInGuest",
+		devVMPath,
+		`C:\Windows\System32\regsvr32.exe`,
+		"/s",
+		productBrushDLL,
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to register Brush DLL: %w", err)
+	}
+
+	return nil
+}
+
+func runUseCase(config *Config) error {
+	fmt.Println("Running Scriptorium development use case...")
+
+	cmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"runProgramInGuest",
+		devVMPath,
+		`C:\Windows\System32\schtasks.exe`,
+		"/Run",
+		"/TN",
+		devUseCaseTaskName,
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
+	}
+
+	return nil
+}
+
+func startProduct(config *Config) error {
+	if err := registerBrush(config); err != nil {
+		return err
+	}
+
+	if err := runUseCase(config); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func stopVM(config *Config) error {
 	fmt.Println("Stopping the development VM...")
 
@@ -680,6 +747,10 @@ var devCmd = &cobra.Command{
 			}
 
 			if err := deployArtifacts(artifacts, config); err != nil {
+				return err
+			}
+
+			if err := startProduct(config); err != nil {
 				return err
 			}
 
