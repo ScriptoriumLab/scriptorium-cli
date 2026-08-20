@@ -41,6 +41,8 @@ const (
 
 	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
 	dictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+
+	inkProjectRootDir = projectRootDir + `\scriptorium-ink`
 )
 
 // TODO: Make the Scriptorium product root directory configurable.
@@ -292,6 +294,25 @@ func buildAndTestInkstone() error {
 	return nil
 }
 
+func buildInk() error {
+	fmt.Println("Building Scriptorium Ink...")
+	cmd := exec.Command(
+		"pnpm",
+		"tauri",
+		"build",
+	)
+
+	cmd.Dir = inkProjectRootDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("scriptorium ink build failed: %w", err)
+	}
+
+	return nil
+}
+
 func buildScriptoriumAndRunAllTests() error {
 	fmt.Println("Building Scriptorium and running all tests...")
 	if err := buildAndTestFelt(); err != nil {
@@ -303,6 +324,10 @@ func buildScriptoriumAndRunAllTests() error {
 	}
 
 	if err := buildAndTestInkstone(); err != nil {
+		return err
+	}
+
+	if err := buildInk(); err != nil {
 		return err
 	}
 
