@@ -54,6 +54,14 @@ const (
 	productLogDir = productRootDir + `\Log`
 )
 
+const productArtifactsDir = `C:\Users\dev\Desktop\ScriptoriumArtifacts`
+
+const (
+	productBrushDLL = productArtifactsDir + `\scriptorium-brush.dll`
+	productInkstoneEXE = productArtifactsDir + `\scriptorium-inkstone.exe`
+	productInkEXE = productArtifactsDir + `\scriptorium-ink.exe`
+)
+
 type ProjectArtifacts struct {
 	BrushDLL    string
 	InkstoneEXE string
@@ -498,6 +506,86 @@ func setupScriptoriumEnv(config *Config) error {
 }
 
 func deployArtifacts(artifacts *ProjectArtifacts, config *Config) error {
+	fmt.Println("Deploying Scriptorium artifacts to development VM...")
+
+	createArtifactsDirCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"createDirectoryInGuest",
+		devVMPath,
+		productArtifactsDir,
+	)
+
+	createArtifactsDirCmd.Stdout = os.Stdout
+	createArtifactsDirCmd.Stderr = os.Stderr
+
+	if err := createArtifactsDirCmd.Run(); err != nil {
+		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
+	}
+
+	fmt.Println("Deploying Brush DLL...")
+	copyBrushCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"CopyFileFromHostToGuest",
+		devVMPath,
+		artifacts.BrushDLL,
+		productBrushDLL,
+	)
+
+	copyBrushCmd.Stdout = os.Stdout
+	copyBrushCmd.Stderr = os.Stderr
+
+	if err := copyBrushCmd.Run(); err != nil {
+		return fmt.Errorf("failed to deploy Brush DLL: %w", err)
+	}
+
+	fmt.Println("Deploying Inkstone executable...")
+	copyInkstoneCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"CopyFileFromHostToGuest",
+		devVMPath,
+		artifacts.InkstoneEXE,
+		productInkstoneEXE,
+	)
+
+	copyInkstoneCmd.Stdout = os.Stdout
+	copyInkstoneCmd.Stderr = os.Stderr
+
+	if err := copyInkstoneCmd.Run(); err != nil {
+		return fmt.Errorf("failed to deploy Inkstone executable: %w", err)
+	}
+
+	fmt.Println("Deploying Ink executable...")
+	copyInkCmd := exec.Command(
+		vmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"CopyFileFromHostToGuest",
+		devVMPath,
+		artifacts.InkEXE,
+		productInkEXE,
+	)
+
+	copyInkCmd.Stdout = os.Stdout
+	copyInkCmd.Stderr = os.Stderr
+
+	if err := copyInkCmd.Run(); err != nil {
+		return fmt.Errorf("failed to deploy Ink executable: %w", err)
+	}
+
 	return nil
 }
 
