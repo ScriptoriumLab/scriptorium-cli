@@ -40,7 +40,7 @@ const (
 	brushProjectRootDir = projectRootDir + `\scriptorium-brush`
 
 	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
-	projectDictionaryDir = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+	dictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 )
 
 // TODO: Make the Scriptorium product root directory configurable.
@@ -442,7 +442,7 @@ func setupScriptoriumEnv(config *Config) error {
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
 		devVMPath,
-		projectDictionaryDir,
+		dictionarySourceFile,
 		productDictionaryDir,
 	)
 
