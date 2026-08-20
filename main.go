@@ -32,24 +32,24 @@ const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-d
 const devVMSnapshot = "baseline"
 
 // TODO: Make the Scriptorium Project root directory configurable
-const scriptoriumProjectRootDir = `D:\Projects\Scriptorium`
+const projectRootDir = `D:\Projects\Scriptorium`
 
 const (
-	scriptoriumFeltProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-felt`
+	feltProjectRootDir = projectRootDir + `\scriptorium-felt`
 
-	scriptoriumBrushProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-brush`
+	brushProjectRootDir = projectRootDir + `\scriptorium-brush`
 
-	scriptoriumInkstoneProjectRootDir = scriptoriumProjectRootDir + `\scriptorium-inkstone`
-	scriptoriumProjectDictionaryDir = scriptoriumInkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
+	projectDictionaryDir = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 )
 
 // TODO: Make the Scriptorium product root directory configurable.
-const scriptoriumProductRootDir = `C:\Users\dev\Scriptorium`
+const productRootDir = `C:\Users\dev\Scriptorium`
 
 const (
-	scriptoriumProductLocalDir = scriptoriumProductRootDir + `\Local`
-	scriptoriumProductDictionaryDir = scriptoriumProductLocalDir + `\pinyin_dictionary.txt`
-	scriptoriumProductLogDir = scriptoriumProductRootDir + `\Log`
+	productLocalDir = productRootDir + `\Local`
+	productDictionaryDir = productLocalDir + `\pinyin_dictionary.txt`
+	productLogDir = productRootDir + `\Log`
 )
 
 type Config struct {
@@ -92,7 +92,7 @@ func ensureVMAvailable() error {
 func buildAndTestFelt() error {
 	fmt.Println("Building and testing Scriptorium Felt...")
 
-	buildDir := scriptoriumFeltProjectRootDir + `\build`
+	buildDir := feltProjectRootDir + `\build`
 
 	fmt.Println("Cleaning existing Felt build directory...")
 	if err := os.RemoveAll(buildDir); err != nil {
@@ -109,7 +109,7 @@ func buildAndTestFelt() error {
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
-	configureCmd.Dir = scriptoriumFeltProjectRootDir
+	configureCmd.Dir = feltProjectRootDir
 	configureCmd.Stdout = os.Stdout
 	configureCmd.Stderr = os.Stderr
 
@@ -123,7 +123,7 @@ func buildAndTestFelt() error {
 		"--build", "build",
 	)
 
-	buildCmd.Dir = scriptoriumFeltProjectRootDir
+	buildCmd.Dir = feltProjectRootDir
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
 
@@ -140,7 +140,7 @@ func buildAndTestFelt() error {
 		"--output-on-failure",
 	)
 
-	testCmd.Dir = scriptoriumFeltProjectRootDir
+	testCmd.Dir = feltProjectRootDir
 	testCmd.Stdout = os.Stdout
 	testCmd.Stderr = os.Stderr
 
@@ -154,7 +154,7 @@ func buildAndTestFelt() error {
 func buildAndTestBrush() error {
 	fmt.Println("Building and testing Scriptorium Brush...")
 
-	buildDir := scriptoriumBrushProjectRootDir + `\build`
+	buildDir := brushProjectRootDir + `\build`
 
 	fmt.Println("Cleaning existing Brush build directory...")
 	if err := os.RemoveAll(buildDir); err != nil {
@@ -171,7 +171,7 @@ func buildAndTestBrush() error {
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
-	configureCmd.Dir = scriptoriumBrushProjectRootDir
+	configureCmd.Dir = brushProjectRootDir
 	configureCmd.Stdout = os.Stdout
 	configureCmd.Stderr = os.Stderr
 
@@ -185,7 +185,7 @@ func buildAndTestBrush() error {
 		"--build", "build",
 	)
 
-	buildCmd.Dir = scriptoriumBrushProjectRootDir
+	buildCmd.Dir = brushProjectRootDir
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
 
@@ -202,7 +202,7 @@ func buildAndTestBrush() error {
 		"--output-on-failure",
 	)
 
-	testCmd.Dir = scriptoriumBrushProjectRootDir
+	testCmd.Dir = brushProjectRootDir
 	testCmd.Stdout = os.Stdout
 	testCmd.Stderr = os.Stderr
 
@@ -216,7 +216,7 @@ func buildAndTestBrush() error {
 func buildAndTestInkstone() error {
 	fmt.Println("Building and testing Scriptorium Inkstone...")
 
-	buildDir := scriptoriumInkstoneProjectRootDir + `\build`
+	buildDir := inkstoneProjectRootDir + `\build`
 
 	fmt.Println("Cleaning existing Inkstone build directory...")
 	if err := os.RemoveAll(buildDir); err != nil {
@@ -233,7 +233,7 @@ func buildAndTestInkstone() error {
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
-	configureCmd.Dir = scriptoriumInkstoneProjectRootDir
+	configureCmd.Dir = inkstoneProjectRootDir
 	configureCmd.Stdout = os.Stdout
 	configureCmd.Stderr = os.Stderr
 
@@ -247,7 +247,7 @@ func buildAndTestInkstone() error {
 		"--build", "build",
 	)
 
-	buildCmd.Dir = scriptoriumInkstoneProjectRootDir
+	buildCmd.Dir = inkstoneProjectRootDir
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
 
@@ -264,7 +264,7 @@ func buildAndTestInkstone() error {
 		"--output-on-failure",
 	)
 
-	unitTestCmd.Dir = scriptoriumInkstoneProjectRootDir
+	unitTestCmd.Dir = inkstoneProjectRootDir
 	unitTestCmd.Stdout = os.Stdout
 	unitTestCmd.Stderr = os.Stderr
 
@@ -281,7 +281,7 @@ func buildAndTestInkstone() error {
 		"--output-on-failure",
 	)
 
-	integrationTestCmd.Dir = scriptoriumInkstoneProjectRootDir
+	integrationTestCmd.Dir = inkstoneProjectRootDir
 	integrationTestCmd.Stdout = os.Stdout
 	integrationTestCmd.Stderr = os.Stderr
 
@@ -406,7 +406,7 @@ func setupScriptoriumEnv(config *Config) error {
 		"-gp", config.GuestPassword,
 		"createDirectoryInGuest",
 		devVMPath,
-		scriptoriumProductLogDir,
+		productLogDir,
 	)
 
 	createLogCmd.Stdout = os.Stdout
@@ -424,7 +424,7 @@ func setupScriptoriumEnv(config *Config) error {
 		"-gp", config.GuestPassword,
 		"createDirectoryInGuest",
 		devVMPath,
-		scriptoriumProductLocalDir,
+		productLocalDir,
 	)
 
 	createLocalCmd.Stdout = os.Stdout
@@ -442,8 +442,8 @@ func setupScriptoriumEnv(config *Config) error {
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
 		devVMPath,
-		scriptoriumProjectDictionaryDir,
-		scriptoriumProductDictionaryDir,
+		projectDictionaryDir,
+		productDictionaryDir,
 	)
 
 	copyDictCmd.Stdout = os.Stdout
