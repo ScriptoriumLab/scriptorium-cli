@@ -168,7 +168,7 @@ func buildInk() (string, error) {
 }
 
 func cmakeConfig(dir string) error {
-	configureCmd := exec.Command(
+	cmd := exec.Command(
 		"cmake",
 		"-S", ".",
 		"-B", "build",
@@ -177,11 +177,11 @@ func cmakeConfig(dir string) error {
 		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
 	)
 
-	configureCmd.Dir = dir
-	configureCmd.Stdout = os.Stdout
-	configureCmd.Stderr = os.Stderr
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	if err := configureCmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to configure project: %w", err)
 	}
 
