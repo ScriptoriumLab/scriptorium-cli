@@ -44,11 +44,11 @@ func cmakeBuild(dir string) error {
 	return nil
 }
 
-func ctestRun(testTag string, dir string) error {
+func ctestRun(label string, dir string) error {
 	cmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",
-		"-L", "^"+testTag+"$",
+		"-L", "^"+label+"$",
 		"--schedule-random",
 		"--output-on-failure",
 	)
