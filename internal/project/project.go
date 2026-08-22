@@ -72,16 +72,7 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Building Felt...")
-	buildCmd := exec.Command(
-		"cmake",
-		"--build", "build",
-	)
-
-	buildCmd.Dir = feltProjectRootDir
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
-
-	if err := buildCmd.Run(); err != nil {
+	if err := cmakeBuild(feltProjectRootDir); err != nil {
 		return fmt.Errorf("failed to build Felt: %w", err)
 	}
 
@@ -121,16 +112,7 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Building Brush...")
-	buildCmd := exec.Command(
-		"cmake",
-		"--build", "build",
-	)
-
-	buildCmd.Dir = brushProjectRootDir
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
-
-	if err := buildCmd.Run(); err != nil {
+	if err := cmakeBuild(brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to build Brush: %w", err)
 	}
 
@@ -171,16 +153,7 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Building Inkstone...")
-	buildCmd := exec.Command(
-		"cmake",
-		"--build", "build",
-	)
-
-	buildCmd.Dir = inkstoneProjectRootDir
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
-
-	if err := buildCmd.Run(); err != nil {
+	if err := cmakeBuild(inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to build Inkstone: %w", err)
 	}
 
@@ -258,6 +231,23 @@ func cmakeConfig(dir string) error {
 
 	if err := configureCmd.Run(); err != nil {
 		return fmt.Errorf("failed to configure project: %w", err)
+	}
+
+	return nil
+}
+
+func cmakeBuild(dir string) error {
+	buildCmd := exec.Command(
+		"cmake",
+		"--build", "build",
+	)
+
+	buildCmd.Dir = dir
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+
+	if err := buildCmd.Run(); err != nil {
+		return fmt.Errorf("failed to build project: %w", err)
 	}
 
 	return nil
