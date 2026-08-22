@@ -77,19 +77,7 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Running Felt unit tests...")
-	testCmd := exec.Command(
-		"ctest",
-		"--test-dir", "build",
-		"-L", "^felt-unit$",
-		"--schedule-random",
-		"--output-on-failure",
-	)
-
-	testCmd.Dir = feltProjectRootDir
-	testCmd.Stdout = os.Stdout
-	testCmd.Stderr = os.Stderr
-
-	if err := testCmd.Run(); err != nil {
+	if err := ctestRun("felt-unit", feltProjectRootDir); err != nil {
 		return fmt.Errorf("scriptorium felt tests failed: %w", err)
 	}
 
@@ -117,19 +105,7 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Running Brush unit tests...")
-	testCmd := exec.Command(
-		"ctest",
-		"--test-dir", "build",
-		"-L", "^brush-unit$",
-		"--schedule-random",
-		"--output-on-failure",
-	)
-
-	testCmd.Dir = brushProjectRootDir
-	testCmd.Stdout = os.Stdout
-	testCmd.Stderr = os.Stderr
-
-	if err := testCmd.Run(); err != nil {
+	if err := ctestRun("brush-unit", brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("scriptorium brush tests failed: %w", err)
 	}
 
@@ -158,36 +134,12 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Running Inkstone unit tests...")
-	unitTestCmd := exec.Command(
-		"ctest",
-		"--test-dir", "build",
-		"-L", "^inkstone-unit$",
-		"--schedule-random",
-		"--output-on-failure",
-	)
-
-	unitTestCmd.Dir = inkstoneProjectRootDir
-	unitTestCmd.Stdout = os.Stdout
-	unitTestCmd.Stderr = os.Stderr
-
-	if err := unitTestCmd.Run(); err != nil {
+	if err := ctestRun("inkstone-unit", inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
 	}
 
 	fmt.Println("Running Inkstone integration tests...")
-	integrationTestCmd := exec.Command(
-		"ctest",
-		"--test-dir", "build",
-		"-L", "^inkstone-integration$",
-		"--schedule-random",
-		"--output-on-failure",
-	)
-
-	integrationTestCmd.Dir = inkstoneProjectRootDir
-	integrationTestCmd.Stdout = os.Stdout
-	integrationTestCmd.Stderr = os.Stderr
-
-	if err := integrationTestCmd.Run(); err != nil {
+	if err := ctestRun("inkstone-integration", inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
 	}
 
@@ -248,6 +200,26 @@ func cmakeBuild(dir string) error {
 
 	if err := buildCmd.Run(); err != nil {
 		return fmt.Errorf("failed to build project: %w", err)
+	}
+
+	return nil
+}
+
+func ctestRun(testTag string, dir string) error {
+	testCmd := exec.Command(
+		"ctest",
+		"--test-dir", "build",
+		"-L", "^" + testTag + "$",
+		"--schedule-random",
+		"--output-on-failure",
+	)
+
+	testCmd.Dir = dir
+	testCmd.Stdout = os.Stdout
+	testCmd.Stderr = os.Stderr
+
+	if err := testCmd.Run(); err != nil {
+		return fmt.Errorf("run tests failed: %w", err)
 	}
 
 	return nil
