@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"strings"
 	"time"
+
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 )
 
 // TODO: Discover vmrun dynamically instead of relying on the default
@@ -35,7 +37,7 @@ func EnsureVMAvailable() error {
 	return nil
 }
 
-func ResetVMEnv(config *Config) error {
+func ResetVMEnv(config *config.Config) error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
@@ -57,7 +59,7 @@ func ResetVMEnv(config *Config) error {
 	return nil
 }
 
-func StartVM(config *Config) error {
+func StartVM(config *config.Config) error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
@@ -79,7 +81,7 @@ func StartVM(config *Config) error {
 	return nil
 }
 
-func WaitForVM(config *Config) error {
+func WaitForVM(config *config.Config) error {
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
@@ -114,7 +116,7 @@ func WaitForVM(config *Config) error {
 	}
 }
 
-func StopVM(config *Config) error {
+func StopVM(config *config.Config) error {
 	fmt.Println("Stopping the development VM...")
 
 	cmd := exec.Command(
@@ -136,7 +138,7 @@ func StopVM(config *Config) error {
 	return nil
 }
 
-func RunUseCase(config *Config) error {
+func RunUseCase(config *config.Config) error {
 	fmt.Println("Running Scriptorium development use case...")
 
 	cmd := exec.Command(
@@ -163,7 +165,7 @@ func RunUseCase(config *Config) error {
 	return nil
 }
 
-func isVMRunning(config *Config) (bool, error) {
+func isVMRunning(config *config.Config) (bool, error) {
 	cmd := exec.Command(
 		vmrunPath,
 		"-T", "ws",

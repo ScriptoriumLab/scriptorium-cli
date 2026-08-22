@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +35,7 @@ const (
 	productInkEXE = productArtifactsDir + `\scriptorium-ink.exe`
 )
 
-func setupScriptoriumEnv(config *Config) error {
+func setupScriptoriumEnv(config *config.Config) error {
 	createLogCmd := exec.Command(
 		vmrunPath,
 		"-T", "ws",
@@ -93,7 +94,7 @@ func setupScriptoriumEnv(config *Config) error {
 	return nil
 }
 
-func deployArtifacts(artifacts *ProjectArtifacts, config *Config) error {
+func deployArtifacts(artifacts *ProjectArtifacts, config *config.Config) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 
 	createArtifactsDirCmd := exec.Command(
@@ -177,7 +178,7 @@ func deployArtifacts(artifacts *ProjectArtifacts, config *Config) error {
 	return nil
 }
 
-func registerBrush(config *Config) error {
+func registerBrush(config *config.Config) error {
 	fmt.Println("Registering Scriptorium Brush...")
 
 	cmd := exec.Command(
@@ -203,7 +204,7 @@ func registerBrush(config *Config) error {
 	return nil
 }
 
-func startProduct(config *Config) error {
+func startProduct(config *config.Config) error {
 	if err := registerBrush(config); err != nil {
 		return err
 	}
@@ -226,7 +227,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			config, err := LoadConfig()
+			config, err := config.LoadConfig()
 			if err != nil {
 				return err
 			}
