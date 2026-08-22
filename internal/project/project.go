@@ -189,16 +189,16 @@ func cmakeConfig(dir string) error {
 }
 
 func cmakeBuild(dir string) error {
-	buildCmd := exec.Command(
+	cmd := exec.Command(
 		"cmake",
 		"--build", "build",
 	)
 
-	buildCmd.Dir = dir
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	if err := buildCmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to build project: %w", err)
 	}
 
