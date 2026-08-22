@@ -33,6 +33,33 @@ func New(config *config.Config) *VM {
 	}
 }
 
+func (vm *VM) CreateDirCommand(path string) *exec.Cmd {
+	return exec.Command(
+		VmrunPath,
+		"-T", "ws",
+		"-vp", vm.config.VMEncryptionPassword,
+		"-gu", vm.config.GuestUsername,
+		"-gp", vm.config.GuestPassword,
+		"createDirectoryInGuest",
+		DevVMPath,
+		path,
+	)
+}
+
+func (vm *VM) CopyFileCommand(src string, target string) *exec.Cmd {
+	return exec.Command(
+		VmrunPath,
+		"-T", "ws",
+		"-vp", vm.config.VMEncryptionPassword,
+		"-gu", vm.config.GuestUsername,
+		"-gp", vm.config.GuestPassword,
+		"CopyFileFromHostToGuest",
+		DevVMPath,
+		src,
+		target,
+	)
+}
+
 func (vm *VM) EnsureAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
 	if _, err := os.Stat(VmrunPath); err != nil {
@@ -162,4 +189,3 @@ func (vm *VM) isRunning() (bool, error) {
 
 	return strings.Contains(string(output), DevVMPath), nil
 }
-

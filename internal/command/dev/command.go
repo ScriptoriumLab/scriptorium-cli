@@ -24,73 +24,39 @@ var env string
 const productRootDir = `C:\Users\dev\Scriptorium`
 
 const (
-	productLocalDir = productRootDir + `\Local`
+	productLocalDir      = productRootDir + `\Local`
 	productDictionaryDir = productLocalDir + `\pinyin_dictionary.txt`
-	productLogDir = productRootDir + `\Log`
+	productLogDir        = productRootDir + `\Log`
 )
 
 const productArtifactsDir = `C:\Users\dev\Desktop\ScriptoriumArtifacts`
 
 const (
-	productBrushDLL = productArtifactsDir + `\scriptorium-brush.dll`
+	productBrushDLL    = productArtifactsDir + `\scriptorium-brush.dll`
 	productInkstoneEXE = productArtifactsDir + `\scriptorium-inkstone.exe`
-	productInkEXE = productArtifactsDir + `\scriptorium-ink.exe`
+	productInkEXE      = productArtifactsDir + `\scriptorium-ink.exe`
 )
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
-func setupScriptoriumEnv(config *config.Config) error {
-	createLogCmd := exec.Command(
-		vm.VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"createDirectoryInGuest",
-		vm.DevVMPath,
-		productLogDir,
-	)
-
+func setupScriptoriumEnv(machine *vm.VM) error {
+	createLogCmd := machine.CreateDirCommand(productLogDir)
 	createLogCmd.Stdout = os.Stdout
 	createLogCmd.Stderr = os.Stderr
-
 	if err := createLogCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
 
-	createLocalCmd := exec.Command(
-		vm.VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"createDirectoryInGuest",
-		vm.DevVMPath,
-		productLocalDir,
-	)
-
+	createLocalCmd := machine.CreateDirCommand(productLocalDir)
 	createLocalCmd.Stdout = os.Stdout
 	createLocalCmd.Stderr = os.Stderr
-
 	if err := createLocalCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	copyDictCmd := exec.Command(
-		vm.VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"CopyFileFromHostToGuest",
-		vm.DevVMPath,
-		project.DictionarySourceFile,
-		productDictionaryDir,
-	)
-
+	copyDictCmd := machine.CopyFileCommand(project.DictionarySourceFile, productDictionaryDir)
 	copyDictCmd.Stdout = os.Stdout
 	copyDictCmd.Stderr = os.Stderr
-
 	if err := copyDictCmd.Run(); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
@@ -235,7 +201,6 @@ func runUseCase(config *config.Config) error {
 	return nil
 }
 
-
 func startProduct(config *config.Config) error {
 	if err := registerBrush(config); err != nil {
 		return err
@@ -279,7 +244,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := setupScriptoriumEnv(config); err != nil {
+			if err := setupScriptoriumEnv(machine); err != nil {
 				return err
 			}
 
