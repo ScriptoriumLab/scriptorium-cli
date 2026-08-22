@@ -1,4 +1,5 @@
-package dev
+// Package project contains functions to build and test the Scriptorium project components.
+package project
 
 import (
 	"fmt"
@@ -15,7 +16,7 @@ const (
 	brushProjectRootDir = projectRootDir + `\scriptorium-brush`
 
 	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
-	dictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+	DictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 
 	inkProjectRootDir = projectRootDir + `\scriptorium-ink`
 )

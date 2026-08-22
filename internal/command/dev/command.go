@@ -7,6 +7,7 @@ import (
 	"os/exec"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 	"github.com/spf13/cobra"
 )
 
@@ -80,7 +81,7 @@ func setupScriptoriumEnv(config *config.Config) error {
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
 		devVMPath,
-		dictionarySourceFile,
+		project.DictionarySourceFile,
 		productDictionaryDir,
 	)
 
@@ -94,7 +95,7 @@ func setupScriptoriumEnv(config *config.Config) error {
 	return nil
 }
 
-func deployArtifacts(artifacts *ProjectArtifacts, config *config.Config) error {
+func deployArtifacts(artifacts *project.ProjectArtifacts, config *config.Config) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 
 	createArtifactsDirCmd := exec.Command(
@@ -232,7 +233,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			artifacts, err := BuildScriptoriumAndRunAllTests()
+			artifacts, err := project.BuildScriptoriumAndRunAllTests()
 			if err != nil {
 				return err
 			}
