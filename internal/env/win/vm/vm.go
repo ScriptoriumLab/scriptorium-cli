@@ -48,13 +48,13 @@ func (vm *VM) EnsureAvailable() error {
 	return nil
 }
 
-func Reset(config *config.Config) error {
+func (vm *VM) Reset() error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
+		"-vp", vm.config.VMEncryptionPassword,
 		"revertToSnapshot",
 		DevVMPath,
 		devVMSnapshot,

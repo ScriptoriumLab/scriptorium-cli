@@ -241,7 +241,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.Reset(config); err != nil {
+			if err := machine.Reset(); err != nil {
 				return err
 			}
 
@@ -265,7 +265,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.Reset(config); err != nil {
+			if err := machine.Reset(); err != nil {
 				return err
 			}
 
