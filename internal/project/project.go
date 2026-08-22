@@ -206,7 +206,7 @@ func cmakeBuild(dir string) error {
 }
 
 func ctestRun(testTag string, dir string) error {
-	testCmd := exec.Command(
+	cmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",
 		"-L", "^" + testTag + "$",
@@ -214,11 +214,11 @@ func ctestRun(testTag string, dir string) error {
 		"--output-on-failure",
 	)
 
-	testCmd.Dir = dir
-	testCmd.Stdout = os.Stdout
-	testCmd.Stderr = os.Stderr
+	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	if err := testCmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("run tests failed: %w", err)
 	}
 
