@@ -67,20 +67,7 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Configuring Felt...")
-	configureCmd := exec.Command(
-		"cmake",
-		"-S", ".",
-		"-B", "build",
-		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Release",
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-	)
-
-	configureCmd.Dir = feltProjectRootDir
-	configureCmd.Stdout = os.Stdout
-	configureCmd.Stderr = os.Stderr
-
-	if err := configureCmd.Run(); err != nil {
+	if err := cmakeConfig(feltProjectRootDir); err != nil {
 		return fmt.Errorf("failed to configure Felt: %w", err)
 	}
 
@@ -129,20 +116,7 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Configuring Brush...")
-	configureCmd := exec.Command(
-		"cmake",
-		"-S", ".",
-		"-B", "build",
-		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Release",
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-	)
-
-	configureCmd.Dir = brushProjectRootDir
-	configureCmd.Stdout = os.Stdout
-	configureCmd.Stderr = os.Stderr
-
-	if err := configureCmd.Run(); err != nil {
+	if err := cmakeConfig(brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Brush: %w", err)
 	}
 
@@ -192,20 +166,7 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Configuring Inkstone...")
-	configureCmd := exec.Command(
-		"cmake",
-		"-S", ".",
-		"-B", "build",
-		"-G", "Ninja",
-		"-DCMAKE_BUILD_TYPE=Release",
-		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
-	)
-
-	configureCmd.Dir = inkstoneProjectRootDir
-	configureCmd.Stdout = os.Stdout
-	configureCmd.Stderr = os.Stderr
-
-	if err := configureCmd.Run(); err != nil {
+	if err := cmakeConfig(inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Inkstone: %w", err)
 	}
 
@@ -281,3 +242,23 @@ func buildInk() (string, error) {
 	return exe, nil
 }
 
+func cmakeConfig(dir string) error {
+	configureCmd := exec.Command(
+		"cmake",
+		"-S", ".",
+		"-B", "build",
+		"-G", "Ninja",
+		"-DCMAKE_BUILD_TYPE=Release",
+		"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+	)
+
+	configureCmd.Dir = dir
+	configureCmd.Stdout = os.Stdout
+	configureCmd.Stderr = os.Stderr
+
+	if err := configureCmd.Run(); err != nil {
+		return fmt.Errorf("failed to configure project: %w", err)
+	}
+
+	return nil
+}
