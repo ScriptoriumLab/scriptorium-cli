@@ -106,7 +106,7 @@ func (vm *VM) Monitor() error {
 		case <-ctx.Done():
 			fmt.Println("Interrupt received. Stopping development VM...")
 
-			if err := StopVM(vm.config); err != nil {
+			if err := stopVM(vm.config); err != nil {
 				return err
 			}
 
@@ -127,7 +127,7 @@ func (vm *VM) Monitor() error {
 	}
 }
 
-func StopVM(config *config.Config) error {
+func stopVM(config *config.Config) error {
 	fmt.Println("Stopping the development VM...")
 
 	cmd := exec.Command(
