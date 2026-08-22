@@ -261,7 +261,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.Monitor(config); err != nil {
+			if err := machine.Monitor(); err != nil {
 				return err
 			}
 

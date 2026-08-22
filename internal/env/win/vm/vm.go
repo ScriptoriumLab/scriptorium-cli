@@ -92,7 +92,7 @@ func (vm *VM) Start() error {
 	return nil
 }
 
-func Monitor(config *config.Config) error {
+func (vm *VM) Monitor() error {
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
@@ -106,13 +106,13 @@ func Monitor(config *config.Config) error {
 		case <-ctx.Done():
 			fmt.Println("Interrupt received. Stopping development VM...")
 
-			if err := StopVM(config); err != nil {
+			if err := StopVM(vm.config); err != nil {
 				return err
 			}
 
 			return nil
 		default:
-			running, err := isRunning(config)
+			running, err := isRunning(vm.config)
 			if err != nil {
 				return err
 			}
