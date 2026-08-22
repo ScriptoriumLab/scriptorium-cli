@@ -66,7 +66,7 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Configuring Felt...")
-	if err := cmakeConfig(feltProjectRootDir); err != nil {
+	if err := cmakeConfigure(feltProjectRootDir); err != nil {
 		return fmt.Errorf("failed to configure Felt: %w", err)
 	}
 
@@ -94,7 +94,7 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Configuring Brush...")
-	if err := cmakeConfig(brushProjectRootDir); err != nil {
+	if err := cmakeConfigure(brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Brush: %w", err)
 	}
 
@@ -123,7 +123,7 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Configuring Inkstone...")
-	if err := cmakeConfig(inkstoneProjectRootDir); err != nil {
+	if err := cmakeConfigure(inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Inkstone: %w", err)
 	}
 

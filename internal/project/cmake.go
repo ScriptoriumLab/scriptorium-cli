@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func cmakeConfig(dir string) error {
+func cmakeConfigure(dir string) error {
 	cmd := exec.Command(
 		"cmake",
 		"-S", ".",
