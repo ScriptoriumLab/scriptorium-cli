@@ -13,12 +13,12 @@ import (
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 )
 
-// VmrunPath TODO: Discover vmrun dynamically instead of relying on the default
+// vmrunPath TODO: Discover vmrun dynamically instead of relying on the default
 // VMware Workstation installation path.
-const VmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
+const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 
-// DevVMPath TODO: Make the development VM path configurable.
-const DevVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
+// devVMPath TODO: Make the development VM path configurable.
+const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
 // TODO: Make the development VM snapshot configurable.
 const devVMSnapshot = "baseline"
@@ -35,13 +35,13 @@ func New(config *config.Config) *VM {
 
 func (vm *VM) CreateDir(path string) error {
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"-gu", vm.config.GuestUsername,
 		"-gp", vm.config.GuestPassword,
 		"createDirectoryInGuest",
-		DevVMPath,
+		devVMPath,
 		path,
 	)
 
@@ -56,13 +56,13 @@ func (vm *VM) CreateDir(path string) error {
 
 func (vm *VM) CopyFile(src string, target string) error {
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"-gu", vm.config.GuestUsername,
 		"-gp", vm.config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		DevVMPath,
+		devVMPath,
 		src,
 		target,
 	)
@@ -76,11 +76,35 @@ func (vm *VM) CopyFile(src string, target string) error {
 	return nil
 }
 
+func (vm *VM) RunProgram(program string, args ...string) error {
+	vmArgs := []string{
+		"-T", "ws",
+		"-vp", vm.config.VMEncryptionPassword,
+		"-gu", vm.config.GuestUsername,
+		"-gp", vm.config.GuestPassword,
+		"runProgramInGuest",
+		devVMPath,
+		program,
+	}
+
+	vmArgs = append(vmArgs, args...)
+
+	cmd := exec.Command(vmrunPath, vmArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run program in guest: %w", err)
+	}
+
+	return nil
+}
+
 func (vm *VM) EnsureAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
-	if _, err := os.Stat(VmrunPath); err != nil {
+	if _, err := os.Stat(vmrunPath); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", VmrunPath)
+			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", vmrunPath)
 		}
 
 		return fmt.Errorf("failed to check VMware CLI: %w", err)
@@ -93,11 +117,11 @@ func (vm *VM) Reset() error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"revertToSnapshot",
-		DevVMPath,
+		devVMPath,
 		devVMSnapshot,
 	)
 
@@ -115,11 +139,11 @@ func (vm *VM) Start() error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"start",
-		DevVMPath,
+		devVMPath,
 		"gui",
 	)
 
@@ -172,11 +196,11 @@ func (vm *VM) stopVM() error {
 	fmt.Println("Stopping the development VM...")
 
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"stop",
-		DevVMPath,
+		devVMPath,
 		"hard",
 	)
 
@@ -192,7 +216,7 @@ func (vm *VM) stopVM() error {
 
 func (vm *VM) isRunning() (bool, error) {
 	cmd := exec.Command(
-		VmrunPath,
+		vmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"list",
@@ -203,5 +227,5 @@ func (vm *VM) isRunning() (bool, error) {
 		return false, fmt.Errorf("failed to list running VMs: %w", err)
 	}
 
-	return strings.Contains(string(output), DevVMPath), nil
+	return strings.Contains(string(output), devVMPath), nil
 }

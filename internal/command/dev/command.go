@@ -3,8 +3,6 @@ package dev
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
@@ -79,65 +77,30 @@ func deployArtifacts(artifacts *project.ProjectArtifacts, machine *vm.VM) error 
 	return nil
 }
 
-func registerBrush(config *config.Config) error {
+func registerBrush(machine *vm.VM) error {
 	fmt.Println("Registering Scriptorium Brush...")
-
-	cmd := exec.Command(
-		vm.VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"runProgramInGuest",
-		vm.DevVMPath,
-		`C:\Windows\System32\regsvr32.exe`,
-		"/s",
-		productBrushDLL,
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
+	if err := machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", productBrushDLL); err != nil {
 		return fmt.Errorf("failed to register Brush DLL: %w", err)
 	}
 
 	return nil
 }
 
-func runUseCase(config *config.Config) error {
+func runUseCase(machine *vm.VM) error {
 	fmt.Println("Running Scriptorium development use case...")
-
-	cmd := exec.Command(
-		vm.VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"runProgramInGuest",
-		vm.DevVMPath,
-		`C:\Windows\System32\schtasks.exe`,
-		"/Run",
-		"/TN",
-		devUseCaseTaskName,
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
+	if err := machine.RunProgram(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
 		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
 	}
 
 	return nil
 }
 
-func startProduct(config *config.Config) error {
-	if err := registerBrush(config); err != nil {
+func startProduct(machine *vm.VM) error {
+	if err := registerBrush(machine); err != nil {
 		return err
 	}
 
-	if err := runUseCase(config); err != nil {
+	if err := runUseCase(machine); err != nil {
 		return err
 	}
 
@@ -183,7 +146,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := startProduct(config); err != nil {
+			if err := startProduct(machine); err != nil {
 				return err
 			}
 
