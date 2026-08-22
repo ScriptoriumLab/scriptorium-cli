@@ -112,7 +112,7 @@ func (vm *VM) Monitor() error {
 
 			return nil
 		default:
-			running, err := isRunning(vm.config)
+			running, err := vm.isRunning()
 			if err != nil {
 				return err
 			}
@@ -176,11 +176,11 @@ func RunUseCase(config *config.Config) error {
 	return nil
 }
 
-func isRunning(config *config.Config) (bool, error) {
+func (vm *VM) isRunning() (bool, error) {
 	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
+		"-vp", vm.config.VMEncryptionPassword,
 		"list",
 	)
 
