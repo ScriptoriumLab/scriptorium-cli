@@ -245,7 +245,7 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.Start(config); err != nil {
+			if err := machine.Start(); err != nil {
 				return err
 			}
 

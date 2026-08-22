@@ -70,13 +70,13 @@ func (vm *VM) Reset() error {
 	return nil
 }
 
-func Start(config *config.Config) error {
+func (vm *VM) Start() error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
+		"-vp", vm.config.VMEncryptionPassword,
 		"start",
 		DevVMPath,
 		"gui",
