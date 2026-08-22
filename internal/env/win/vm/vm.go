@@ -33,8 +33,8 @@ func New(config *config.Config) *VM {
 	}
 }
 
-func (vm *VM) CreateDirCommand(path string) *exec.Cmd {
-	return exec.Command(
+func (vm *VM) CreateDir(path string) error {
+	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
@@ -44,10 +44,18 @@ func (vm *VM) CreateDirCommand(path string) *exec.Cmd {
 		DevVMPath,
 		path,
 	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to create directory in VM: %w", err)
+	}
+
+	return nil
 }
 
-func (vm *VM) CopyFileCommand(src string, target string) *exec.Cmd {
-	return exec.Command(
+func (vm *VM) CopyFile(src string, target string) error {
+	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
@@ -58,6 +66,14 @@ func (vm *VM) CopyFileCommand(src string, target string) *exec.Cmd {
 		src,
 		target,
 	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to copy file to VM: %w", err)
+	}
+
+	return nil
 }
 
 func (vm *VM) EnsureAvailable() error {

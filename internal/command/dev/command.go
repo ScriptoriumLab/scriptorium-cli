@@ -40,24 +40,15 @@ const (
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
 func setupScriptoriumEnv(machine *vm.VM) error {
-	createLogCmd := machine.CreateDirCommand(productLogDir)
-	createLogCmd.Stdout = os.Stdout
-	createLogCmd.Stderr = os.Stderr
-	if err := createLogCmd.Run(); err != nil {
+	if err := machine.CreateDir(productLogDir); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
 
-	createLocalCmd := machine.CreateDirCommand(productLocalDir)
-	createLocalCmd.Stdout = os.Stdout
-	createLocalCmd.Stderr = os.Stderr
-	if err := createLocalCmd.Run(); err != nil {
+	if err := machine.CreateDir(productLocalDir); err != nil {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	copyDictCmd := machine.CopyFileCommand(project.DictionarySourceFile, productDictionaryDir)
-	copyDictCmd.Stdout = os.Stdout
-	copyDictCmd.Stderr = os.Stderr
-	if err := copyDictCmd.Run(); err != nil {
+	if err := machine.CopyFile(project.DictionarySourceFile, productDictionaryDir); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
