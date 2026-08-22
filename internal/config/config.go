@@ -14,7 +14,7 @@ type Config struct {
 	GuestPassword        string
 }
 
-func LoadConfig() (*Config, error) {
+func Load() (*Config, error) {
 	fmt.Println("Loading configuration files and environment variables...")
 
 	if err := godotenv.Load(); err != nil {

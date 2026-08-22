@@ -225,11 +225,11 @@ var devCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := vm.EnsureVMAvailable(); err != nil {
+			if err := vm.EnsureAvailable(); err != nil {
 				return err
 			}
 
-			config, err := config.LoadConfig()
+			config, err := config.Load()
 			if err != nil {
 				return err
 			}
@@ -239,11 +239,11 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.ResetVMEnv(config); err != nil {
+			if err := vm.Reset(config); err != nil {
 				return err
 			}
 
-			if err := vm.StartVM(config); err != nil {
+			if err := vm.Start(config); err != nil {
 				return err
 			}
 
@@ -259,11 +259,11 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := vm.WaitForVM(config); err != nil {
+			if err := vm.Monitor(config); err != nil {
 				return err
 			}
 
-			if err := vm.ResetVMEnv(config); err != nil {
+			if err := vm.Reset(config); err != nil {
 				return err
 			}
 

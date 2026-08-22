@@ -25,7 +25,7 @@ const devVMSnapshot = "baseline"
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
-func EnsureVMAvailable() error {
+func EnsureAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
 	if _, err := os.Stat(VmrunPath); err != nil {
 		if os.IsNotExist(err) {
@@ -38,7 +38,7 @@ func EnsureVMAvailable() error {
 	return nil
 }
 
-func ResetVMEnv(config *config.Config) error {
+func Reset(config *config.Config) error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
@@ -60,7 +60,7 @@ func ResetVMEnv(config *config.Config) error {
 	return nil
 }
 
-func StartVM(config *config.Config) error {
+func Start(config *config.Config) error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
@@ -82,7 +82,7 @@ func StartVM(config *config.Config) error {
 	return nil
 }
 
-func WaitForVM(config *config.Config) error {
+func Monitor(config *config.Config) error {
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
@@ -102,7 +102,7 @@ func WaitForVM(config *config.Config) error {
 
 			return nil
 		default:
-			running, err := isVMRunning(config)
+			running, err := isRunning(config)
 			if err != nil {
 				return err
 			}
@@ -166,7 +166,7 @@ func RunUseCase(config *config.Config) error {
 	return nil
 }
 
-func isVMRunning(config *config.Config) (bool, error) {
+func isRunning(config *config.Config) (bool, error) {
 	cmd := exec.Command(
 		VmrunPath,
 		"-T", "ws",
