@@ -44,7 +44,7 @@ func cmakeBuild(dir string) error {
 	return nil
 }
 
-func ctestRun(label string, dir string) error {
+func ctestRun(dir string, label string) error {
 	cmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",

@@ -76,7 +76,7 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Running Felt unit tests...")
-	if err := ctestRun("felt-unit", feltProjectRootDir); err != nil {
+	if err := ctestRun(feltProjectRootDir, "felt-unit"); err != nil {
 		return fmt.Errorf("scriptorium felt tests failed: %w", err)
 	}
 
@@ -104,7 +104,7 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Running Brush unit tests...")
-	if err := ctestRun("brush-unit", brushProjectRootDir); err != nil {
+	if err := ctestRun(brushProjectRootDir, "brush-unit"); err != nil {
 		return "", fmt.Errorf("scriptorium brush tests failed: %w", err)
 	}
 
@@ -133,12 +133,12 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Running Inkstone unit tests...")
-	if err := ctestRun("inkstone-unit", inkstoneProjectRootDir); err != nil {
+	if err := ctestRun(inkstoneProjectRootDir, "inkstone-unit"); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
 	}
 
 	fmt.Println("Running Inkstone integration tests...")
-	if err := ctestRun("inkstone-integration", inkstoneProjectRootDir); err != nil {
+	if err := ctestRun(inkstoneProjectRootDir, "inkstone-integration"); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
 	}
 
