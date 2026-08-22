@@ -37,6 +37,8 @@ const (
 	productInkEXE = productArtifactsDir + `\scriptorium-ink.exe`
 )
 
+const devUseCaseTaskName = "Scriptorium Dev Use Case"
+
 func setupScriptoriumEnv(config *config.Config) error {
 	createLogCmd := exec.Command(
 		vm.VmrunPath,
@@ -206,12 +208,40 @@ func registerBrush(config *config.Config) error {
 	return nil
 }
 
+func runUseCase(config *config.Config) error {
+	fmt.Println("Running Scriptorium development use case...")
+
+	cmd := exec.Command(
+		vm.VmrunPath,
+		"-T", "ws",
+		"-vp", config.VMEncryptionPassword,
+		"-gu", config.GuestUsername,
+		"-gp", config.GuestPassword,
+		"runProgramInGuest",
+		vm.DevVMPath,
+		`C:\Windows\System32\schtasks.exe`,
+		"/Run",
+		"/TN",
+		devUseCaseTaskName,
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
+	}
+
+	return nil
+}
+
+
 func startProduct(config *config.Config) error {
 	if err := registerBrush(config); err != nil {
 		return err
 	}
 
-	if err := vm.RunUseCase(config); err != nil {
+	if err := runUseCase(config); err != nil {
 		return err
 	}
 

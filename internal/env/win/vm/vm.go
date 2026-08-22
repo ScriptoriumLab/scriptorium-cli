@@ -23,8 +23,6 @@ const DevVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-d
 // TODO: Make the development VM snapshot configurable.
 const devVMSnapshot = "baseline"
 
-const devUseCaseTaskName = "Scriptorium Dev Use Case"
-
 type VM struct {
 	config *config.Config
 }
@@ -144,33 +142,6 @@ func (vm *VM) stopVM() error {
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to stop development VM: %w", err)
-	}
-
-	return nil
-}
-
-func RunUseCase(config *config.Config) error {
-	fmt.Println("Running Scriptorium development use case...")
-
-	cmd := exec.Command(
-		VmrunPath,
-		"-T", "ws",
-		"-vp", config.VMEncryptionPassword,
-		"-gu", config.GuestUsername,
-		"-gp", config.GuestPassword,
-		"runProgramInGuest",
-		DevVMPath,
-		`C:\Windows\System32\schtasks.exe`,
-		"/Run",
-		"/TN",
-		devUseCaseTaskName,
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
 	}
 
 	return nil
