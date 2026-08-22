@@ -1,4 +1,5 @@
-package dev
+// Package vm provides functions to manage the development virtual machine (VM) on Windows using VMware Workstation.
+package vm
 
 import (
 	"context"
@@ -12,12 +13,12 @@ import (
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 )
 
-// TODO: Discover vmrun dynamically instead of relying on the default
+// VmrunPath TODO: Discover vmrun dynamically instead of relying on the default
 // VMware Workstation installation path.
-const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
+const VmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 
-// TODO: Make the development VM path configurable.
-const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
+// DevVMPath TODO: Make the development VM path configurable.
+const DevVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
 // TODO: Make the development VM snapshot configurable.
 const devVMSnapshot = "baseline"
@@ -26,9 +27,9 @@ const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
 func EnsureVMAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
-	if _, err := os.Stat(vmrunPath); err != nil {
+	if _, err := os.Stat(VmrunPath); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", vmrunPath)
+			return fmt.Errorf("VMware CLI 'vmrun' was not found at %s", VmrunPath)
 		}
 
 		return fmt.Errorf("failed to check VMware CLI: %w", err)
@@ -41,11 +42,11 @@ func ResetVMEnv(config *config.Config) error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"revertToSnapshot",
-		devVMPath,
+		DevVMPath,
 		devVMSnapshot,
 	)
 
@@ -63,11 +64,11 @@ func StartVM(config *config.Config) error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"start",
-		devVMPath,
+		DevVMPath,
 		"gui",
 	)
 
@@ -120,11 +121,11 @@ func StopVM(config *config.Config) error {
 	fmt.Println("Stopping the development VM...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"stop",
-		devVMPath,
+		DevVMPath,
 		"hard",
 	)
 
@@ -142,13 +143,13 @@ func RunUseCase(config *config.Config) error {
 	fmt.Println("Running Scriptorium development use case...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"runProgramInGuest",
-		devVMPath,
+		DevVMPath,
 		`C:\Windows\System32\schtasks.exe`,
 		"/Run",
 		"/TN",
@@ -167,7 +168,7 @@ func RunUseCase(config *config.Config) error {
 
 func isVMRunning(config *config.Config) (bool, error) {
 	cmd := exec.Command(
-		vmrunPath,
+		VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"list",
@@ -178,6 +179,6 @@ func isVMRunning(config *config.Config) (bool, error) {
 		return false, fmt.Errorf("failed to list running VMs: %w", err)
 	}
 
-	return strings.Contains(string(output), devVMPath), nil
+	return strings.Contains(string(output), DevVMPath), nil
 }
 

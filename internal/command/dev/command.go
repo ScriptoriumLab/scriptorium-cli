@@ -7,6 +7,7 @@ import (
 	"os/exec"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 	"github.com/spf13/cobra"
 )
@@ -38,13 +39,13 @@ const (
 
 func setupScriptoriumEnv(config *config.Config) error {
 	createLogCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"createDirectoryInGuest",
-		devVMPath,
+		vm.DevVMPath,
 		productLogDir,
 	)
 
@@ -56,13 +57,13 @@ func setupScriptoriumEnv(config *config.Config) error {
 	}
 
 	createLocalCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"createDirectoryInGuest",
-		devVMPath,
+		vm.DevVMPath,
 		productLocalDir,
 	)
 
@@ -74,13 +75,13 @@ func setupScriptoriumEnv(config *config.Config) error {
 	}
 
 	copyDictCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		devVMPath,
+		vm.DevVMPath,
 		project.DictionarySourceFile,
 		productDictionaryDir,
 	)
@@ -99,13 +100,13 @@ func deployArtifacts(artifacts *project.ProjectArtifacts, config *config.Config)
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 
 	createArtifactsDirCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"createDirectoryInGuest",
-		devVMPath,
+		vm.DevVMPath,
 		productArtifactsDir,
 	)
 
@@ -118,13 +119,13 @@ func deployArtifacts(artifacts *project.ProjectArtifacts, config *config.Config)
 
 	fmt.Println("Deploying Brush DLL...")
 	copyBrushCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		devVMPath,
+		vm.DevVMPath,
 		artifacts.BrushDLL,
 		productBrushDLL,
 	)
@@ -138,13 +139,13 @@ func deployArtifacts(artifacts *project.ProjectArtifacts, config *config.Config)
 
 	fmt.Println("Deploying Inkstone executable...")
 	copyInkstoneCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		devVMPath,
+		vm.DevVMPath,
 		artifacts.InkstoneEXE,
 		productInkstoneEXE,
 	)
@@ -158,13 +159,13 @@ func deployArtifacts(artifacts *project.ProjectArtifacts, config *config.Config)
 
 	fmt.Println("Deploying Ink executable...")
 	copyInkCmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		devVMPath,
+		vm.DevVMPath,
 		artifacts.InkEXE,
 		productInkEXE,
 	)
@@ -183,13 +184,13 @@ func registerBrush(config *config.Config) error {
 	fmt.Println("Registering Scriptorium Brush...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		vm.VmrunPath,
 		"-T", "ws",
 		"-vp", config.VMEncryptionPassword,
 		"-gu", config.GuestUsername,
 		"-gp", config.GuestPassword,
 		"runProgramInGuest",
-		devVMPath,
+		vm.DevVMPath,
 		`C:\Windows\System32\regsvr32.exe`,
 		"/s",
 		productBrushDLL,
@@ -210,7 +211,7 @@ func startProduct(config *config.Config) error {
 		return err
 	}
 
-	if err := RunUseCase(config); err != nil {
+	if err := vm.RunUseCase(config); err != nil {
 		return err
 	}
 
@@ -224,7 +225,7 @@ var devCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := EnsureVMAvailable(); err != nil {
+			if err := vm.EnsureVMAvailable(); err != nil {
 				return err
 			}
 
@@ -238,11 +239,11 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := ResetVMEnv(config); err != nil {
+			if err := vm.ResetVMEnv(config); err != nil {
 				return err
 			}
 
-			if err := StartVM(config); err != nil {
+			if err := vm.StartVM(config); err != nil {
 				return err
 			}
 
@@ -258,11 +259,11 @@ var devCmd = &cobra.Command{
 				return err
 			}
 
-			if err := WaitForVM(config); err != nil {
+			if err := vm.WaitForVM(config); err != nil {
 				return err
 			}
 
-			if err := ResetVMEnv(config); err != nil {
+			if err := vm.ResetVMEnv(config); err != nil {
 				return err
 			}
 
