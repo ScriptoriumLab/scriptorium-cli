@@ -225,12 +225,14 @@ var devCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := vm.EnsureAvailable(); err != nil {
+			config, err := config.Load()
+			if err != nil {
 				return err
 			}
 
-			config, err := config.Load()
-			if err != nil {
+			machine := vm.New(config)
+
+			if err := machine.EnsureAvailable(); err != nil {
 				return err
 			}
 

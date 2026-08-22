@@ -25,7 +25,17 @@ const devVMSnapshot = "baseline"
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
-func EnsureAvailable() error {
+type VM struct {
+	config *config.Config
+}
+
+func New(config *config.Config) *VM {
+	return &VM{
+		config: config,
+	}
+}
+
+func (vm *VM) EnsureAvailable() error {
 	fmt.Println("Ensuring VMware is available...")
 	if _, err := os.Stat(VmrunPath); err != nil {
 		if os.IsNotExist(err) {
