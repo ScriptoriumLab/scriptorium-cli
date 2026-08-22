@@ -47,7 +47,7 @@ Development is currently focused on **Windows**.
 To build the CLI on Windows:
 
 ```powershell
-go build -o orium.exe
+go build .\cmd\orium\
 ```
 
 Then run:
