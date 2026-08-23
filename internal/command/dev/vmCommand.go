@@ -89,12 +89,12 @@ func runUseCase(machine *vm.VM) error {
 	return nil
 }
 
-func startProduct(machine *vm.VM) error {
-	if err := registerBrush(machine); err != nil {
+func (vmCmd *vmCommand) startProduct() error {
+	if err := registerBrush(vmCmd.machine); err != nil {
 		return err
 	}
 
-	if err := runUseCase(machine); err != nil {
+	if err := runUseCase(vmCmd.machine); err != nil {
 		return err
 	}
 
@@ -138,7 +138,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := startProduct(vmCmd.machine); err != nil {
+	if err := vmCmd.startProduct(); err != nil {
 		return err
 	}
 
