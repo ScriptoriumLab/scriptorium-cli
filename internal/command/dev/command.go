@@ -22,7 +22,7 @@ var devCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := newVMCommand().executeVMCommand(); err != nil {
+			if err := newVMCommand().execute(); err != nil {
 				return err
 			}
 
