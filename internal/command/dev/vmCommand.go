@@ -27,6 +27,10 @@ const (
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
+type vmCommand struct {
+	machine *vm.VM
+}
+
 func setupScriptoriumEnv(machine *vm.VM) error {
 	if err := machine.CreateDir(productLogDir); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
@@ -97,7 +101,11 @@ func startProduct(machine *vm.VM) error {
 	return nil
 }
 
-func executeVMCommand() error {
+func newVMCommand() *vmCommand {
+	return &vmCommand{}
+}
+
+func (vmCmd *vmCommand) executeVMCommand() error {
 	config, err := config.Load()
 	if err != nil {
 		return err
