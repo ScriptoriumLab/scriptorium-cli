@@ -71,9 +71,9 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) err
 	return nil
 }
 
-func registerBrush(machine *vm.VM) error {
+func (vmCmd *vmCommand) registerBrush() error {
 	fmt.Println("Registering Scriptorium Brush...")
-	if err := machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", productBrushDLL); err != nil {
+	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", productBrushDLL); err != nil {
 		return fmt.Errorf("failed to register Brush DLL: %w", err)
 	}
 
@@ -90,7 +90,7 @@ func runUseCase(machine *vm.VM) error {
 }
 
 func (vmCmd *vmCommand) startProduct() error {
-	if err := registerBrush(vmCmd.machine); err != nil {
+	if err := vmCmd.registerBrush(); err != nil {
 		return err
 	}
 
