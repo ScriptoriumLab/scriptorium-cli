@@ -111,9 +111,9 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	machine := vm.New(config)
+	vmCmd.machine = vm.New(config)
 
-	if err := machine.EnsureAvailable(); err != nil {
+	if err := vmCmd.machine.EnsureAvailable(); err != nil {
 		return err
 	}
 
@@ -122,31 +122,31 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := machine.Reset(); err != nil {
+	if err := vmCmd.machine.Reset(); err != nil {
 		return err
 	}
 
-	if err := machine.Start(); err != nil {
+	if err := vmCmd.machine.Start(); err != nil {
 		return err
 	}
 
-	if err := setupScriptoriumEnv(machine); err != nil {
+	if err := setupScriptoriumEnv(vmCmd.machine); err != nil {
 		return err
 	}
 
-	if err := deployArtifacts(artifacts, machine); err != nil {
+	if err := deployArtifacts(artifacts, vmCmd.machine); err != nil {
 		return err
 	}
 
-	if err := startProduct(machine); err != nil {
+	if err := startProduct(vmCmd.machine); err != nil {
 		return err
 	}
 
-	if err := machine.Monitor(); err != nil {
+	if err := vmCmd.machine.Monitor(); err != nil {
 		return err
 	}
 
-	if err := machine.Reset(); err != nil {
+	if err := vmCmd.machine.Reset(); err != nil {
 		return err
 	}
 
