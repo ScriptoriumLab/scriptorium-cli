@@ -31,16 +31,16 @@ type vmCommand struct {
 	machine *vm.VM
 }
 
-func setupScriptoriumEnv(machine *vm.VM) error {
-	if err := machine.CreateDir(productLogDir); err != nil {
+func (vmCmd *vmCommand) setupScriptoriumEnv() error {
+	if err := vmCmd.machine.CreateDir(productLogDir); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
 
-	if err := machine.CreateDir(productLocalDir); err != nil {
+	if err := vmCmd.machine.CreateDir(productLocalDir); err != nil {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := machine.CopyFile(project.DictionarySourceFile, productDictionaryDir); err != nil {
+	if err := vmCmd.machine.CopyFile(project.DictionarySourceFile, productDictionaryDir); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
@@ -130,7 +130,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := setupScriptoriumEnv(vmCmd.machine); err != nil {
+	if err := vmCmd.setupScriptoriumEnv(); err != nil {
 		return err
 	}
 
