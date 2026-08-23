@@ -47,24 +47,24 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 	return nil
 }
 
-func deployArtifacts(artifacts *project.ProjectArtifacts, machine *vm.VM) error {
+func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
-	if err := machine.CreateDir(productArtifactsDir); err != nil {
+	if err := vmCmd.machine.CreateDir(productArtifactsDir); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
 	}
 
 	fmt.Println("Deploying Brush DLL...")
-	if err := machine.CopyFile(artifacts.BrushDLL, productBrushDLL); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.BrushDLL, productBrushDLL); err != nil {
 		return fmt.Errorf("failed to deploy Brush DLL: %w", err)
 	}
 
 	fmt.Println("Deploying Inkstone executable...")
-	if err := machine.CopyFile(artifacts.InkstoneEXE, productInkstoneEXE); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.InkstoneEXE, productInkstoneEXE); err != nil {
 		return fmt.Errorf("failed to deploy Inkstone executable: %w", err)
 	}
 
 	fmt.Println("Deploying Ink executable...")
-	if err := machine.CopyFile(artifacts.InkEXE, productInkEXE); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.InkEXE, productInkEXE); err != nil {
 		return fmt.Errorf("failed to deploy Ink executable: %w", err)
 	}
 
@@ -134,7 +134,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := deployArtifacts(artifacts, vmCmd.machine); err != nil {
+	if err := vmCmd.deployArtifacts(artifacts); err != nil {
 		return err
 	}
 
