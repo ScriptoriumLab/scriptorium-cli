@@ -80,9 +80,9 @@ func (vmCmd *vmCommand) registerBrush() error {
 	return nil
 }
 
-func runUseCase(machine *vm.VM) error {
+func (vmCmd *vmCommand) runUseCase() error {
 	fmt.Println("Running Scriptorium development use case...")
-	if err := machine.RunProgram(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
+	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
 		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
 	}
 
@@ -94,7 +94,7 @@ func (vmCmd *vmCommand) startProduct() error {
 		return err
 	}
 
-	if err := runUseCase(vmCmd.machine); err != nil {
+	if err := vmCmd.runUseCase(); err != nil {
 		return err
 	}
 
