@@ -59,7 +59,7 @@ Then run:
 For example:
 
 ```powershell
-.\orium.exe greet
+.\orium.exe dev --env vm
 ```
 
 Support for additional platforms will be added as the toolchain evolves.
