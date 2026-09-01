@@ -4,7 +4,6 @@ package project
 import (
 	"fmt"
 	"os"
-	"os/exec"
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
@@ -148,17 +147,8 @@ func buildAndTestInkstone() (string, error) {
 
 func buildInk() (string, error) {
 	fmt.Println("Building Scriptorium Ink...")
-	cmd := exec.Command(
-		"pnpm",
-		"tauri",
-		"build",
-	)
 
-	cmd.Dir = inkProjectRootDir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
+	if err := pnpmBuild(inkProjectRootDir); err != nil {
 		return "", fmt.Errorf("scriptorium ink build failed: %w", err)
 	}
 
