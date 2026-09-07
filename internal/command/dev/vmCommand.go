@@ -27,6 +27,9 @@ const (
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
+// TODO: Make the Scriptorium Project root directory configurable
+const workspaceRoot = `D:\Projects\Scriptorium`
+
 type vmCommand struct {
 	machine *vm.VM
 }
@@ -40,7 +43,7 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(project.DictionarySourceFile, productDictionaryDir); err != nil {
+	if err := vmCmd.machine.CopyFile(project.NewDictionary(workspaceRoot).SourceFile, productDictionaryDir); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
@@ -117,7 +120,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	artifacts, err := project.BuildScriptoriumAndRunAllTests()
+	artifacts, err := project.NewWorkspace(workspaceRoot).BuildScriptoriumAndRunAllTests()
 	if err != nil {
 		return err
 	}

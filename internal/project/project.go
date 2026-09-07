@@ -5,34 +5,39 @@ import (
 	"fmt"
 )
 
-// TODO: Make the Scriptorium Project root directory configurable
-const workspaceRoot = `D:\Projects\Scriptorium`
-
-const DictionarySourceFile = workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`
-
 type ProjectArtifacts struct {
 	BrushDLL    string
 	InkstoneEXE string
 	InkEXE      string
 }
 
-func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
+type Workspace struct {
+	root string
+}
+
+func NewWorkspace(root string) *Workspace {
+	return &Workspace{
+		root: root,
+	}
+}
+
+func (workspace *Workspace) BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 	fmt.Println("Building Scriptorium and running all tests...")
-	if err := NewFelt(workspaceRoot).buildAndTest(); err != nil {
+	if err := NewFelt(workspace.root).buildAndTest(); err != nil {
 		return nil, err
 	}
 
-	brushDll, err := NewBrush(workspaceRoot).buildAndTest()
+	brushDll, err := NewBrush(workspace.root).buildAndTest()
 	if err != nil {
 		return nil, err
 	}
 
-	inkstoneExe, err := NewInkstone(workspaceRoot).buildAndTest()
+	inkstoneExe, err := NewInkstone(workspace.root).buildAndTest()
 	if err != nil {
 		return nil, err
 	}
 
-	inkExe, err := NewInk(workspaceRoot).build()
+	inkExe, err := NewInk(workspace.root).build()
 	if err != nil {
 		return nil, err
 	}
