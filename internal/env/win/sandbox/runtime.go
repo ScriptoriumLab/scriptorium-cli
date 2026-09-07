@@ -12,6 +12,8 @@ func (sandbox *Sandbox) RunCommand(command string) error {
 		return err
 	}
 
+	fmt.Printf("Running in Windows Sandbox: %s\n", command)
+
 	cmd := exec.Command(
 		"wsb", "exec",
 		"--id", sandbox.id,
@@ -24,7 +26,11 @@ func (sandbox *Sandbox) RunCommand(command string) error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to execute command in Windows Sandbox: %w", err)
+		return fmt.Errorf(
+			"failed to execute command in Windows Sandbox: %q: %w",
+			command,
+			err,
+		)
 	}
 
 	return nil
@@ -56,6 +62,15 @@ func (sandbox *Sandbox) CopyFile(source, destination string) error {
 	}
 
 	return nil
+}
+
+func (sandbox *Sandbox) CreateFile(path string) error {
+	command := fmt.Sprintf(
+		`powershell.exe -NoProfile -Command "New-Item -ItemType File -Force '%s' | Out-Null"`,
+		path,
+	)
+
+	return sandbox.RunCommand(command)
 }
 
 func (sandbox *Sandbox) ShareFolder(hostPath, sandboxPath string) error {
