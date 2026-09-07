@@ -3,6 +3,7 @@ package sandbox
 
 import (
 	"fmt"
+	"io"
 	"os/exec"
 )
 
@@ -15,7 +16,11 @@ func New() *Sandbox {
 func (sandbox *Sandbox) EnsureAvailable() error {
 	fmt.Println("Ensuring Windows Sandbox is available...")
 
-	if _, err := exec.LookPath("wsb"); err != nil {
+	cmd := exec.Command("wsb", "--help")
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+
+	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("windows sandbox CLI 'wsb' was not found: %w", err)
 	}
 
