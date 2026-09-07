@@ -11,6 +11,7 @@ type devEnv string
 
 const (
 	devEnvVM devEnv = "vm"
+	devEnvSandbox devEnv = "sandbox"
 )
 
 var env string
@@ -27,6 +28,12 @@ var devCmd = &cobra.Command{
 			}
 
 			return nil
+		case devEnvSandbox:
+			if err := newSandboxCommand().execute(); err != nil {
+				return err
+			}
+
+			return nil
 		default:
 			return fmt.Errorf("unsupported development environment: %s", env)
 		}
@@ -34,7 +41,7 @@ var devCmd = &cobra.Command{
 }
 
 func NewCommand() *cobra.Command {
-	devCmd.Flags().StringVarP(&env, "env", "E", "vm", "development environment to use; currently only 'vm' is supported, with more environments planned")
+	devCmd.Flags().StringVarP(&env, "env", "E", "vm", "development environment to use")
 
 	return devCmd
 }
