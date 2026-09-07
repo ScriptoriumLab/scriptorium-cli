@@ -12,6 +12,7 @@ import (
 type Sandbox struct {
 	id               string
 	remoteSessionPID int
+	interactiveReady bool
 }
 
 func New() *Sandbox {

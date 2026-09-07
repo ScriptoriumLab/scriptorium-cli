@@ -1,0 +1,66 @@
+package sandbox
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"time"
+)
+
+func (sandbox *Sandbox) RunCommand(command string) error {
+	if err := sandbox.waitForInteractiveSession(); err != nil {
+		return err
+	}
+
+	cmd := exec.Command(
+		"wsb", "exec",
+		"--id", sandbox.id,
+		"--command", command,
+		"--run-as", "ExistingLogin",
+		"--raw",
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to execute command in Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) CreateDir(path string) error {
+	command := fmt.Sprintf(
+		`powershell.exe -NoProfile -Command "New-Item -ItemType Directory -Force '%s' | Out-Null"`,
+		path,
+	)
+
+	return sandbox.RunCommand(command)
+}
+
+func (sandbox *Sandbox) waitForInteractiveSession() error {
+	if sandbox.interactiveReady {
+        return nil
+    }
+
+	fmt.Println("Waiting for Windows Sandbox interactive session...")
+
+	for range 20 {
+		cmd := exec.Command(
+			"wsb", "exec",
+			"--id", sandbox.id,
+			"--command", "cmd.exe",
+			"--run-as", "ExistingLogin",
+		)
+
+		if err := cmd.Run(); err == nil {
+			sandbox.interactiveReady = true
+			return nil
+		}
+
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	return fmt.Errorf("windows sandbox interactive session did not become available")
+}
