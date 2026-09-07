@@ -18,10 +18,11 @@ type Product struct {
 }
 
 func NewProduct(config *config.ProductConfig) *Product {
+	localPath := config.RootPath + `\Local`
 	return &Product{
 		Config:         config,
-		LocalPath:      config.RootPath + `\Local`,
-		DictionaryPath: config.RootPath + `\Local` + `\pinyin_dictionary.txt`,
+		LocalPath:      localPath,
+		DictionaryPath: localPath + `\pinyin_dictionary.txt`,
 		LogPath:        config.RootPath + `\Log`,
 		Artifacts: &ProductArtifacts{
 			BrushDLL:    config.ArtifactsPath + `\scriptorium-brush.dll`,
