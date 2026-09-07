@@ -16,10 +16,10 @@ const vmrunPath = `C:\Program Files\VMware\VMware Workstation\vmrun.exe`
 const devVMPath = `D:\Projects\Scriptorium\dev-env\scriptorium-dev\scriptorium-dev.vmx`
 
 type VM struct {
-	config *config.Config
+	config *config.VMConfig
 }
 
-func New(config *config.Config) *VM {
+func New(config *config.VMConfig) *VM {
 	return &VM{
 		config: config,
 	}

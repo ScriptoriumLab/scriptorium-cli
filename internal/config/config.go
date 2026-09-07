@@ -8,20 +8,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Config struct {
+type VMConfig struct {
 	VMEncryptionPassword string
 	GuestUsername        string
 	GuestPassword        string
 }
 
-func Load() (*Config, error) {
+func Load() (*VMConfig, error) {
 	fmt.Println("Loading configuration files and environment variables...")
 
 	if err := godotenv.Load(); err != nil {
 		return nil, fmt.Errorf("failed to load .env file: %w", err)
 	}
 
-	config := &Config{
+	config := &VMConfig{
 		VMEncryptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
 		GuestUsername:        os.Getenv("ORIUM_GUEST_USERNAME"),
 		GuestPassword:        os.Getenv("ORIUM_GUEST_PASSWORD"),
