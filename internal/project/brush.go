@@ -13,7 +13,7 @@ type Brush struct {
 
 func (workspace *Workspace) Brush() *Brush {
 	return &Brush{
-		projectRootDir: workspace.root + `\scriptorium-brush`,
+		projectRootDir: workspace.config.RootPath + `\scriptorium-brush`,
 	}
 }
 

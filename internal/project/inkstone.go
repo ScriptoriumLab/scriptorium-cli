@@ -13,7 +13,7 @@ type Inkstone struct {
 
 func (workspace *Workspace) Inkstone() *Inkstone {
 	return &Inkstone{
-		projectRootDir: workspace.root + `\scriptorium-inkstone`,
+		projectRootDir: workspace.config.RootPath + `\scriptorium-inkstone`,
 	}
 }
 

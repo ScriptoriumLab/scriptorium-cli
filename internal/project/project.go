@@ -3,6 +3,8 @@ package project
 
 import (
 	"fmt"
+
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 )
 
 type ProjectArtifacts struct {
@@ -12,12 +14,12 @@ type ProjectArtifacts struct {
 }
 
 type Workspace struct {
-	root string
+	config *config.WorkspaceConfig
 }
 
-func NewWorkspace(root string) *Workspace {
+func NewWorkspace(config *config.WorkspaceConfig) *Workspace {
 	return &Workspace{
-		root: root,
+		config: config,
 	}
 }
 

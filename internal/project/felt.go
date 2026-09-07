@@ -13,7 +13,7 @@ type Felt struct {
 
 func (workspace *Workspace) Felt() *Felt {
 	return &Felt{
-		projectRootDir: workspace.root + `\scriptorium-felt`,
+		projectRootDir: workspace.config.RootPath + `\scriptorium-felt`,
 	}
 }
 

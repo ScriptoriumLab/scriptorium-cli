@@ -12,7 +12,7 @@ type Ink struct{
 
 func (workspace *Workspace) Ink() *Ink {
 	return &Ink{
-		projectRootDir: workspace.root + `\scriptorium-ink`,
+		projectRootDir: workspace.config.RootPath + `\scriptorium-ink`,
 	}
 }
 

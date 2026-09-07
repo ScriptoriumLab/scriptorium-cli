@@ -6,7 +6,7 @@ type Dictionary struct {
 
 func (workspace *Workspace) Dictionary () *Dictionary {
 	return &Dictionary{
-		sourceFile: workspace.root + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
+		sourceFile: workspace.config.RootPath + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
 	}
 }
 

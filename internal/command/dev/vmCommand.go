@@ -27,9 +27,6 @@ const (
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
-// TODO: Make the Scriptorium Project root directory configurable
-const workspaceRoot = `D:\Projects\Scriptorium`
-
 type vmCommand struct {
 	machine *vm.VM
 	workspace *project.Workspace
@@ -110,13 +107,17 @@ func newVMCommand() *vmCommand {
 }
 
 func (vmCmd *vmCommand) execute() error {
-	config, err := config.LoadVM()
+	vmConfig, err := config.LoadVM()
 	if err != nil {
 		return err
 	}
+	vmCmd.machine = vm.New(vmConfig)
 
-	vmCmd.machine = vm.New(config)
-	vmCmd.workspace = project.NewWorkspace(workspaceRoot)
+	workspaceConfig, err := config.LoadWorkspace()
+	if err != nil {
+		return err
+	}
+	vmCmd.workspace = project.NewWorkspace(workspaceConfig)
 
 	if err := vmCmd.machine.EnsureAvailable(); err != nil {
 		return err

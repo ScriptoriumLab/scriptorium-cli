@@ -45,3 +45,25 @@ func LoadVM() (*VMConfig, error) {
 
 	return config, nil
 }
+
+type WorkspaceConfig struct {
+	RootPath string
+}
+
+func LoadWorkspace() (*WorkspaceConfig, error) {
+	fmt.Println("Loading workspace configuration...")
+
+	if err := godotenv.Load(".scriptorium.env"); err != nil {
+		return nil, fmt.Errorf("failed to load .scriptorium.env file: %w", err)
+	}
+
+	config := &WorkspaceConfig{
+		RootPath: os.Getenv("SCRIPTORIUM_WORKSPACE_ROOT_PATH"),
+	}
+
+	if config.RootPath == "" {
+		return nil, fmt.Errorf("SCRIPTORIUM_WORKSPACE_ROOT_PATH is not configured")
+	}
+
+	return config, nil
+}
