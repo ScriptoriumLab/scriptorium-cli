@@ -25,5 +25,9 @@ func (sandboxCmd *sandboxCommand) execute() error {
 		return err
 	}
 
+	if err := sandboxCmd.sandbox.Monitor(); err != nil {
+		return err
+	}
+
 	return nil
 }

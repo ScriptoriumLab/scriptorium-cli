@@ -1,9 +1,11 @@
 package sandbox
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strconv"
 	"strings"
 	"time"
@@ -102,4 +104,67 @@ exit 0
 	}
 
 	return pids, nil
+}
+
+func (sandbox *Sandbox) Monitor() error {
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+	)
+	defer stop()
+
+	fmt.Println("Waiting for the development windows sandbox to stop...")
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("Interrupt received. Stopping development widnows sandbox...")
+
+			if err := sandbox.stop(); err != nil {
+				return err
+			}
+
+			return nil
+		default:
+			running, err := sandbox.isRunning()
+			if err != nil {
+				return err
+			}
+
+			if !running {
+				sandbox.stop()
+				fmt.Println("Development VM stopped.")
+				return nil
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+}
+
+func (sandbox *Sandbox) stop() error {
+	fmt.Println("Stopping the development Windows Sandbox...")
+	cmd := exec.Command("wsb", "stop",
+		"--id", sandbox.id,
+		"--raw",
+	)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to stop development windows sandbox: %w", err)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) isRunning() (bool, error) {
+	pids, err := getRemoteSessionPIDs()
+	if err != nil {
+		return false, err
+	}
+
+	_, exists := pids[sandbox.remoteSessionPID]
+
+	return exists, nil
 }
