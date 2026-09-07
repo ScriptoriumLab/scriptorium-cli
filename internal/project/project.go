@@ -3,18 +3,12 @@ package project
 
 import (
 	"fmt"
-	"os"
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/cmake"
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
 const workspaceRoot = `D:\Projects\Scriptorium`
 
-const (
-	feltProjectRootDir = workspaceRoot + `\scriptorium-felt`
-
-	DictionarySourceFile = workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`
-)
+const DictionarySourceFile = workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`
 
 type ProjectArtifacts struct {
 	BrushDLL    string
@@ -24,7 +18,7 @@ type ProjectArtifacts struct {
 
 func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 	fmt.Println("Building Scriptorium and running all tests...")
-	if err := buildAndTestFelt(); err != nil {
+	if err := NewFelt(workspaceRoot).buildAndTest(); err != nil {
 		return nil, err
 	}
 
@@ -49,32 +43,3 @@ func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		InkEXE:      inkExe,
 	}, nil
 }
-
-func buildAndTestFelt() error {
-	fmt.Println("Building and testing Scriptorium Felt...")
-
-	buildDir := feltProjectRootDir + `\build`
-
-	fmt.Println("Cleaning existing Felt build directory...")
-	if err := os.RemoveAll(buildDir); err != nil {
-		return fmt.Errorf("failed to clean Felt build directory: %w", err)
-	}
-
-	fmt.Println("Configuring Felt...")
-	if err := cmake.Configure(feltProjectRootDir); err != nil {
-		return fmt.Errorf("failed to configure Felt: %w", err)
-	}
-
-	fmt.Println("Building Felt...")
-	if err := cmake.Build(feltProjectRootDir); err != nil {
-		return fmt.Errorf("failed to build Felt: %w", err)
-	}
-
-	fmt.Println("Running Felt unit tests...")
-	if err := cmake.RunTests(feltProjectRootDir, "felt-unit"); err != nil {
-		return fmt.Errorf("scriptorium felt tests failed: %w", err)
-	}
-
-	return nil
-}
-
