@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/cmake"
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/pnpm"
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
@@ -18,8 +17,6 @@ const (
 
 	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
 	DictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
-
-	inkProjectRootDir = projectRootDir + `\scriptorium-ink`
 )
 
 type ProjectArtifacts struct {
@@ -44,7 +41,7 @@ func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	inkExe, err := buildInk()
+	inkExe, err := NewInk(projectRootDir).build()
 	if err != nil {
 		return nil, err
 	}
@@ -144,16 +141,5 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	exe := inkstoneProjectRootDir + `\build\ScriptoriumLabIME\scriptorium-inkstone.exe`
-	return exe, nil
-}
-
-func buildInk() (string, error) {
-	fmt.Println("Building Scriptorium Ink...")
-
-	if err := pnpm.BuildTauri(inkProjectRootDir); err != nil {
-		return "", fmt.Errorf("scriptorium ink build failed: %w", err)
-	}
-
-	exe := inkProjectRootDir + `\src-tauri\target\release\scriptorium-ink.exe`
 	return exe, nil
 }
