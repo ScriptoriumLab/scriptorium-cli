@@ -10,7 +10,8 @@ import (
 )
 
 type Sandbox struct {
-	id string
+	id               string
+	remoteSessionPID int
 }
 
 func New() *Sandbox {
