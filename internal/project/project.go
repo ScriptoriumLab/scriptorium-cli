@@ -23,21 +23,21 @@ func NewWorkspace(root string) *Workspace {
 
 func (workspace *Workspace) BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 	fmt.Println("Building Scriptorium and running all tests...")
-	if err := workspace.NewFelt().buildAndTest(); err != nil {
+	if err := workspace.Felt().buildAndTest(); err != nil {
 		return nil, err
 	}
 
-	brushDll, err := workspace.NewBrush().buildAndTest()
+	brushDll, err := workspace.Brush().buildAndTest()
 	if err != nil {
 		return nil, err
 	}
 
-	inkstoneExe, err := workspace.NewInkstone().buildAndTest()
+	inkstoneExe, err := workspace.Inkstone().buildAndTest()
 	if err != nil {
 		return nil, err
 	}
 
-	inkExe, err := workspace.NewInk().build()
+	inkExe, err := workspace.Ink().build()
 	if err != nil {
 		return nil, err
 	}

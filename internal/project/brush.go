@@ -11,7 +11,7 @@ type Brush struct {
 	projectRootDir string
 }
 
-func (workspace *Workspace) NewBrush() *Brush {
+func (workspace *Workspace) Brush() *Brush {
 	return &Brush{
 		projectRootDir: workspace.root + `\scriptorium-brush`,
 	}

@@ -11,7 +11,7 @@ type Felt struct {
 	projectRootDir string
 }
 
-func (workspace *Workspace) NewFelt() *Felt {
+func (workspace *Workspace) Felt() *Felt {
 	return &Felt{
 		projectRootDir: workspace.root + `\scriptorium-felt`,
 	}
