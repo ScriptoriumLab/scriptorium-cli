@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+
+	"github.com/google/uuid"
 )
 
-type Sandbox struct {}
+type Sandbox struct {
+	id string
+}
 
 func New() *Sandbox {
-	return &Sandbox{}
+	return &Sandbox{
+		id: uuid.NewString(),
+	}
 }
 
 func (sandbox *Sandbox) EnsureAvailable() error {
