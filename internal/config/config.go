@@ -14,7 +14,7 @@ type VMConfig struct {
 	GuestPassword        string
 }
 
-func Load() (*VMConfig, error) {
+func LoadVM() (*VMConfig, error) {
 	fmt.Println("Loading configuration files and environment variables...")
 
 	if err := godotenv.Load(); err != nil {

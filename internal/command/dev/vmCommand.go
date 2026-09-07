@@ -109,7 +109,7 @@ func newVMCommand() *vmCommand {
 }
 
 func (vmCmd *vmCommand) execute() error {
-	config, err := config.Load()
+	config, err := config.LoadVM()
 	if err != nil {
 		return err
 	}
