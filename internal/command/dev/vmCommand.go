@@ -5,24 +5,8 @@ import (
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
-)
-
-// TODO: Make the Scriptorium product root directory configurable.
-const productRootDir = `C:\Users\dev\Scriptorium`
-
-const (
-	productLocalDir      = productRootDir + `\Local`
-	productDictionaryDir = productLocalDir + `\pinyin_dictionary.txt`
-	productLogDir        = productRootDir + `\Log`
-)
-
-const productArtifactsDir = `C:\Users\dev\Desktop\ScriptoriumArtifacts`
-
-const (
-	productBrushDLL    = productArtifactsDir + `\scriptorium-brush.dll`
-	productInkstoneEXE = productArtifactsDir + `\scriptorium-inkstone.exe`
-	productInkEXE      = productArtifactsDir + `\scriptorium-ink.exe`
 )
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
@@ -30,18 +14,19 @@ const devUseCaseTaskName = "Scriptorium Dev Use Case"
 type vmCommand struct {
 	machine *vm.VM
 	workspace *project.Workspace
+	product *product.Product
 }
 
 func (vmCmd *vmCommand) setupScriptoriumEnv() error {
-	if err := vmCmd.machine.CreateDir(productLogDir); err != nil {
+	if err := vmCmd.machine.CreateDir(vmCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CreateDir(productLocalDir); err != nil {
+	if err := vmCmd.machine.CreateDir(vmCmd.product.LocalPath); err != nil {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(vmCmd.workspace.Dictionary().SourceFile(), productDictionaryDir); err != nil {
+	if err := vmCmd.machine.CopyFile(vmCmd.workspace.Dictionary().SourceFile(), vmCmd.product.DictionaryPath); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
@@ -50,22 +35,22 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 
 func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
-	if err := vmCmd.machine.CreateDir(productArtifactsDir); err != nil {
+	if err := vmCmd.machine.CreateDir(vmCmd.product.Config.ArtifactsPath); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
 	}
 
 	fmt.Println("Deploying Brush DLL...")
-	if err := vmCmd.machine.CopyFile(artifacts.BrushDLL, productBrushDLL); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.BrushDLL, vmCmd.product.Artifacts.BrushDLL); err != nil {
 		return fmt.Errorf("failed to deploy Brush DLL: %w", err)
 	}
 
 	fmt.Println("Deploying Inkstone executable...")
-	if err := vmCmd.machine.CopyFile(artifacts.InkstoneEXE, productInkstoneEXE); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.InkstoneEXE, vmCmd.product.Artifacts.InkstoneEXE); err != nil {
 		return fmt.Errorf("failed to deploy Inkstone executable: %w", err)
 	}
 
 	fmt.Println("Deploying Ink executable...")
-	if err := vmCmd.machine.CopyFile(artifacts.InkEXE, productInkEXE); err != nil {
+	if err := vmCmd.machine.CopyFile(artifacts.InkEXE, vmCmd.product.Artifacts.InkEXE); err != nil {
 		return fmt.Errorf("failed to deploy Ink executable: %w", err)
 	}
 
@@ -74,7 +59,7 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) err
 
 func (vmCmd *vmCommand) registerBrush() error {
 	fmt.Println("Registering Scriptorium Brush...")
-	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", productBrushDLL); err != nil {
+	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", vmCmd.product.Artifacts.BrushDLL); err != nil {
 		return fmt.Errorf("failed to register Brush DLL: %w", err)
 	}
 
@@ -118,6 +103,12 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 	vmCmd.workspace = project.NewWorkspace(workspaceConfig)
+
+	productConfig, err := config.LoadProduct()
+	if err != nil {
+		return err
+	}
+	vmCmd.product = product.NewProduct(productConfig)
 
 	if err := vmCmd.machine.EnsureAvailable(); err != nil {
 		return err

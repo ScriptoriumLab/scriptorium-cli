@@ -54,7 +54,7 @@ func LoadWorkspace() (*WorkspaceConfig, error) {
 	fmt.Println("Loading workspace configuration...")
 
 	if err := godotenv.Load(".scriptorium.src.env"); err != nil {
-		return nil, fmt.Errorf("failed to load .scriptorium.env file: %w", err)
+		return nil, fmt.Errorf("failed to load .scriptorium.src.env file: %w", err)
 	}
 
 	config := &WorkspaceConfig{
@@ -63,6 +63,34 @@ func LoadWorkspace() (*WorkspaceConfig, error) {
 
 	if config.RootPath == "" {
 		return nil, fmt.Errorf("SCRIPTORIUM_WORKSPACE_ROOT_PATH is not configured")
+	}
+
+	return config, nil
+}
+
+type ProductConfig struct {
+	RootPath string
+	ArtifactsPath string
+}
+
+func LoadProduct() (*ProductConfig, error) {
+	fmt.Println("Loading product configuration...")
+
+	if err := godotenv.Load(".scriptorium.product.env"); err != nil {
+		return nil, fmt.Errorf("failed to load .scriptorium.product.env file: %w", err)
+	}
+
+	config := &ProductConfig{
+		RootPath:      os.Getenv("SCRIPTORIUM_PRODUCT_ROOT_PATH"),
+		ArtifactsPath: os.Getenv("SCRIPTORIUM_PRODUCT_ARTIFACT_PATH"),
+	}
+
+	if config.RootPath == "" {
+		return nil, fmt.Errorf("SCRIPTORIUM_PRODUCT_ROOT_PATH is not configured")
+	}
+
+	if config.ArtifactsPath == "" {
+		return nil, fmt.Errorf("SCRIPTORIUM_PRODUCT_ARTIFACT_PATH is not configured")
 	}
 
 	return config, nil
