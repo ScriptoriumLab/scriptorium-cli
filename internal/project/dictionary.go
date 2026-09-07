@@ -1,11 +1,15 @@
 package project
 
 type Dictionary struct {
-	SourceFile string
+	sourceFile string
 }
 
 func NewDictionary (workspaceRoot string) *Dictionary {
 	return &Dictionary{
-		SourceFile: workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
+		sourceFile: workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
 	}
+}
+
+func (dictionary *Dictionary) SourceFile() string {
+	return dictionary.sourceFile
 }

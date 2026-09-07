@@ -43,7 +43,7 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(project.NewDictionary(workspaceRoot).SourceFile, productDictionaryDir); err != nil {
+	if err := vmCmd.machine.CopyFile(project.NewDictionary(workspaceRoot).SourceFile(), productDictionaryDir); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
