@@ -8,14 +8,14 @@ import (
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
-const projectRootDir = `D:\Projects\Scriptorium`
+const workspaceRoot = `D:\Projects\Scriptorium`
 
 const (
-	feltProjectRootDir = projectRootDir + `\scriptorium-felt`
+	feltProjectRootDir = workspaceRoot + `\scriptorium-felt`
 
-	brushProjectRootDir = projectRootDir + `\scriptorium-brush`
+	brushProjectRootDir = workspaceRoot + `\scriptorium-brush`
 
-	inkstoneProjectRootDir = projectRootDir + `\scriptorium-inkstone`
+	inkstoneProjectRootDir = workspaceRoot + `\scriptorium-inkstone`
 	DictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
 )
 
@@ -41,7 +41,7 @@ func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	inkExe, err := NewInk(projectRootDir).build()
+	inkExe, err := NewInk(workspaceRoot).build()
 	if err != nil {
 		return nil, err
 	}
