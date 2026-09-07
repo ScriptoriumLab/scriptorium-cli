@@ -53,7 +53,7 @@ type WorkspaceConfig struct {
 func LoadWorkspace() (*WorkspaceConfig, error) {
 	fmt.Println("Loading workspace configuration...")
 
-	if err := godotenv.Load(".scriptorium.env"); err != nil {
+	if err := godotenv.Load(".scriptorium.src.env"); err != nil {
 		return nil, fmt.Errorf("failed to load .scriptorium.env file: %w", err)
 	}
 
