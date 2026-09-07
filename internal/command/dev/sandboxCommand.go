@@ -58,7 +58,7 @@ func (sandboxCmd *sandboxCommand) deployArtifacts(artifacts *project.ProjectArti
 	if err != nil {
 		return fmt.Errorf("failed to create Sandbox staging directory: %w", err)
 	}
-	defer os.RemoveAll(stagingDir)
+	sandboxCmd.sandbox.TempStagingDir = stagingDir
 
 	if err := copyFile(
 		artifacts.BrushDLL,

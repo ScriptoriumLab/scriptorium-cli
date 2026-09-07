@@ -176,5 +176,10 @@ func (sandbox *Sandbox) isRunning() (bool, error) {
 }
 
 func (sandbox *Sandbox) Cleanup() error {
+	fmt.Println("Cleanup the development Windows Sandbox...")
+	if err := os.RemoveAll(sandbox.TempStagingDir); err != nil {
+		fmt.Printf("Failed to remove Sandbox staging directory %q: %v\n", sandbox.TempStagingDir, err)
+	}
+
 	return nil
 }

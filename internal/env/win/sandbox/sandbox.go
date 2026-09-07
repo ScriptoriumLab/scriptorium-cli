@@ -13,6 +13,7 @@ type Sandbox struct {
 	id               string
 	remoteSessionPID int
 	interactiveReady bool
+	TempStagingDir   string
 }
 
 func New() *Sandbox {
