@@ -174,3 +174,7 @@ func (sandbox *Sandbox) isRunning() (bool, error) {
 
 	return exists, nil
 }
+
+func (sandbox *Sandbox) Cleanup() error {
+	return nil
+}
