@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-// TODO: Make the development VM snapshot configurable.
-const devVMSnapshot = "baseline"
-
 func (vm *VM) Reset() error {
 	fmt.Println("Resetting the development VM to baseline...")
 
@@ -22,7 +19,7 @@ func (vm *VM) Reset() error {
 		"-vp", vm.config.VMEncryptionPassword,
 		"revertToSnapshot",
 		vm.config.VMImagePath,
-		devVMSnapshot,
+		vm.config.VMSnapshotName,
 	)
 
 	cmd.Stdout = os.Stdout

@@ -11,6 +11,7 @@ import (
 type VMConfig struct {
 	VMRunPath            string
 	VMImagePath          string
+	VMSnapshotName       string
 	VMEncryptionPassword string
 	GuestUsername        string
 	GuestPassword        string
@@ -26,9 +27,22 @@ func LoadVM() (*VMConfig, error) {
 	config := &VMConfig{
 		VMRunPath:            os.Getenv("ORIUM_VM_RUN_PATH"),
 		VMImagePath:          os.Getenv("ORIUM_VM_IMAGE_PATH"),
+		VMSnapshotName:       os.Getenv("ORIUM_VM_SNAPSHOT_NAME"),
 		VMEncryptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
 		GuestUsername:        os.Getenv("ORIUM_GUEST_USERNAME"),
 		GuestPassword:        os.Getenv("ORIUM_GUEST_PASSWORD"),
+	}
+
+	if config.VMRunPath == "" {
+		return nil, fmt.Errorf("ORIUM_VM_RUN_PATH is not configured")
+	}
+
+	if config.VMImagePath == "" {
+		return nil, fmt.Errorf("ORIUM_VM_IMAGE_PATH is not configured")
+	}
+
+	if config.VMSnapshotName == "" {
+		return nil, fmt.Errorf("ORIUM_VM_SNAPSHOT_NAME is not configured")
 	}
 
 	if config.VMEncryptionPassword == "" {
