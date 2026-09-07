@@ -13,8 +13,6 @@ const workspaceRoot = `D:\Projects\Scriptorium`
 const (
 	feltProjectRootDir = workspaceRoot + `\scriptorium-felt`
 
-	brushProjectRootDir = workspaceRoot + `\scriptorium-brush`
-
 	DictionarySourceFile = workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`
 )
 
@@ -30,7 +28,7 @@ func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	brushDll, err := buildAndTestBrush()
+	brushDll, err := NewBrush(workspaceRoot).buildAndTest()
 	if err != nil {
 		return nil, err
 	}
@@ -78,34 +76,5 @@ func buildAndTestFelt() error {
 	}
 
 	return nil
-}
-
-func buildAndTestBrush() (string, error) {
-	fmt.Println("Building and testing Scriptorium Brush...")
-
-	buildDir := brushProjectRootDir + `\build`
-
-	fmt.Println("Cleaning existing Brush build directory...")
-	if err := os.RemoveAll(buildDir); err != nil {
-		return "", fmt.Errorf("failed to clean Brush build directory: %w", err)
-	}
-
-	fmt.Println("Configuring Brush...")
-	if err := cmake.Configure(brushProjectRootDir); err != nil {
-		return "", fmt.Errorf("failed to configure Brush: %w", err)
-	}
-
-	fmt.Println("Building Brush...")
-	if err := cmake.Build(brushProjectRootDir); err != nil {
-		return "", fmt.Errorf("failed to build Brush: %w", err)
-	}
-
-	fmt.Println("Running Brush unit tests...")
-	if err := cmake.RunTests(brushProjectRootDir, "brush-unit"); err != nil {
-		return "", fmt.Errorf("scriptorium brush tests failed: %w", err)
-	}
-
-	artifact := brushProjectRootDir + `\build\ScriptoriumLabIME\scriptorium-brush.dll`
-	return artifact, nil
 }
 
