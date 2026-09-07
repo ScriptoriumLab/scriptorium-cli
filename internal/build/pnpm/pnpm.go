@@ -1,4 +1,5 @@
-package project
+// Package pnpm provides functions to build Tauri-based projects using pnpm.
+package pnpm
 
 import (
 	"fmt"
@@ -6,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func pnpmBuild(dir string) error {
+func BuildTauri(dir string) error {
 	cmd := exec.Command(
 		"pnpm",
 		"tauri",

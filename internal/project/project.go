@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/cmake"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/pnpm"
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
@@ -149,7 +150,7 @@ func buildAndTestInkstone() (string, error) {
 func buildInk() (string, error) {
 	fmt.Println("Building Scriptorium Ink...")
 
-	if err := pnpmBuild(inkProjectRootDir); err != nil {
+	if err := pnpm.BuildTauri(inkProjectRootDir); err != nil {
 		return "", fmt.Errorf("scriptorium ink build failed: %w", err)
 	}
 
