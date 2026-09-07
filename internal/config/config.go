@@ -9,6 +9,8 @@ import (
 )
 
 type VMConfig struct {
+	VMRunPath            string
+	VMImagePath          string
 	VMEncryptionPassword string
 	GuestUsername        string
 	GuestPassword        string
@@ -22,6 +24,8 @@ func LoadVM() (*VMConfig, error) {
 	}
 
 	config := &VMConfig{
+		VMRunPath:            os.Getenv("ORIUM_VM_RUN_PATH"),
+		VMImagePath:          os.Getenv("ORIUM_VM_IMAGE_PATH"),
 		VMEncryptionPassword: os.Getenv("ORIUM_VM_ENCRYPTION_PASSWORD"),
 		GuestUsername:        os.Getenv("ORIUM_GUEST_USERNAME"),
 		GuestPassword:        os.Getenv("ORIUM_GUEST_PASSWORD"),

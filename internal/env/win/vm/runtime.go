@@ -8,13 +8,13 @@ import (
 
 func (vm *VM) CreateDir(path string) error {
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"-gu", vm.config.GuestUsername,
 		"-gp", vm.config.GuestPassword,
 		"createDirectoryInGuest",
-		devVMPath,
+		vm.config.VMImagePath,
 		path,
 	)
 
@@ -29,13 +29,13 @@ func (vm *VM) CreateDir(path string) error {
 
 func (vm *VM) CopyFile(src string, target string) error {
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"-gu", vm.config.GuestUsername,
 		"-gp", vm.config.GuestPassword,
 		"CopyFileFromHostToGuest",
-		devVMPath,
+		vm.config.VMImagePath,
 		src,
 		target,
 	)
@@ -56,13 +56,13 @@ func (vm *VM) RunProgram(program string, args ...string) error {
 		"-gu", vm.config.GuestUsername,
 		"-gp", vm.config.GuestPassword,
 		"runProgramInGuest",
-		devVMPath,
+		vm.config.VMImagePath,
 		program,
 	}
 
 	vmArgs = append(vmArgs, args...)
 
-	cmd := exec.Command(vmrunPath, vmArgs...)
+	cmd := exec.Command(vm.config.VMRunPath, vmArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

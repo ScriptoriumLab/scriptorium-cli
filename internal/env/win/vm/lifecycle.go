@@ -17,11 +17,11 @@ func (vm *VM) Reset() error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"revertToSnapshot",
-		devVMPath,
+		vm.config.VMImagePath,
 		devVMSnapshot,
 	)
 
@@ -39,11 +39,11 @@ func (vm *VM) Start() error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"start",
-		devVMPath,
+		vm.config.VMImagePath,
 		"gui",
 	)
 
@@ -96,11 +96,11 @@ func (vm *VM) stopVM() error {
 	fmt.Println("Stopping the development VM...")
 
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"stop",
-		devVMPath,
+		vm.config.VMImagePath,
 		"hard",
 	)
 
@@ -116,7 +116,7 @@ func (vm *VM) stopVM() error {
 
 func (vm *VM) isRunning() (bool, error) {
 	cmd := exec.Command(
-		vmrunPath,
+		vm.config.VMRunPath,
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,
 		"list",
@@ -127,5 +127,5 @@ func (vm *VM) isRunning() (bool, error) {
 		return false, fmt.Errorf("failed to list running VMs: %w", err)
 	}
 
-	return strings.Contains(string(output), devVMPath), nil
+	return strings.Contains(string(output), vm.config.VMImagePath), nil
 }
