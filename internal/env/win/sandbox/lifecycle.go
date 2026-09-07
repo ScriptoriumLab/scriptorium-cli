@@ -44,7 +44,7 @@ func (sandbox *Sandbox) Connect() error {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to connect to the development Windows Sandbox: %w", err)
+		return fmt.Errorf("failed to connect to the development windows sandbox: %w", err)
 	}
 
 	for range 10 {
@@ -63,7 +63,7 @@ func (sandbox *Sandbox) Connect() error {
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	return fmt.Errorf("failed to identify Windows Sandbox remote session process")
+	return fmt.Errorf("failed to identify windows sandbox remote session process")
 }
 
 func getRemoteSessionPIDs() (map[int]struct{}, error) {
@@ -83,7 +83,7 @@ exit 0
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"failed to query Windows Sandbox remote session processes: %w",
+			"failed to query windows sandbox remote session processes: %w",
 			err,
 		)
 	}
@@ -132,8 +132,11 @@ func (sandbox *Sandbox) Monitor() error {
 			}
 
 			if !running {
-				sandbox.stop()
-				fmt.Println("Development VM stopped.")
+				if err := sandbox.stop(); err != nil {
+					return err
+				}
+
+				fmt.Println("Development windows sandbox stopped.")
 				return nil
 			}
 
@@ -159,6 +162,9 @@ func (sandbox *Sandbox) stop() error {
 }
 
 func (sandbox *Sandbox) isRunning() (bool, error) {
+	if sandbox.remoteSessionPID == 0 {
+		return false, nil
+	}
 	pids, err := getRemoteSessionPIDs()
 	if err != nil {
 		return false, err
