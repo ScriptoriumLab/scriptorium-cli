@@ -17,7 +17,7 @@ type VMConfig struct {
 func LoadVM() (*VMConfig, error) {
 	fmt.Println("Loading configuration files and environment variables...")
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".vm.env"); err != nil {
 		return nil, fmt.Errorf("failed to load .env file: %w", err)
 	}
 
