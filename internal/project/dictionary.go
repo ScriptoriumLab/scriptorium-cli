@@ -4,9 +4,9 @@ type Dictionary struct {
 	sourceFile string
 }
 
-func NewDictionary (workspaceRoot string) *Dictionary {
+func (workspace *Workspace) NewDictionary () *Dictionary {
 	return &Dictionary{
-		sourceFile: workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
+		sourceFile: workspace.root + `\scriptorium-inkstone\data\pinyin_dictionary.txt`,
 	}
 }
 

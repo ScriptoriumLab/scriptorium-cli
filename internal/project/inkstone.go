@@ -11,9 +11,9 @@ type Inkstone struct {
 	projectRootDir string
 }
 
-func NewInkstone(workspaceRoot string) *Inkstone {
+func (workspace *Workspace) NewInkstone() *Inkstone {
 	return &Inkstone{
-		projectRootDir: workspaceRoot + `\scriptorium-inkstone`,
+		projectRootDir: workspace.root + `\scriptorium-inkstone`,
 	}
 }
 

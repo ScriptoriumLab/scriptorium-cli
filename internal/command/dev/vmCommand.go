@@ -32,6 +32,7 @@ const workspaceRoot = `D:\Projects\Scriptorium`
 
 type vmCommand struct {
 	machine *vm.VM
+	workspace *project.Workspace
 }
 
 func (vmCmd *vmCommand) setupScriptoriumEnv() error {
@@ -43,7 +44,7 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(project.NewDictionary(workspaceRoot).SourceFile(), productDictionaryDir); err != nil {
+	if err := vmCmd.machine.CopyFile(vmCmd.workspace.NewDictionary().SourceFile(), productDictionaryDir); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
@@ -115,12 +116,13 @@ func (vmCmd *vmCommand) execute() error {
 	}
 
 	vmCmd.machine = vm.New(config)
+	vmCmd.workspace = project.NewWorkspace(workspaceRoot)
 
 	if err := vmCmd.machine.EnsureAvailable(); err != nil {
 		return err
 	}
 
-	artifacts, err := project.NewWorkspace(workspaceRoot).BuildScriptoriumAndRunAllTests()
+	artifacts, err := vmCmd.workspace.BuildScriptoriumAndRunAllTests()
 	if err != nil {
 		return err
 	}

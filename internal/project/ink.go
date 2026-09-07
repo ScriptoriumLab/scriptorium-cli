@@ -10,9 +10,9 @@ type Ink struct{
 	projectRootDir string
 }
 
-func NewInk(workspaceRoot string) *Ink {
+func (workspace *Workspace) NewInk() *Ink {
 	return &Ink{
-		projectRootDir: workspaceRoot + `\scriptorium-ink`,
+		projectRootDir: workspace.root + `\scriptorium-ink`,
 	}
 }
 
