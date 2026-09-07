@@ -15,8 +15,7 @@ const (
 
 	brushProjectRootDir = workspaceRoot + `\scriptorium-brush`
 
-	inkstoneProjectRootDir = workspaceRoot + `\scriptorium-inkstone`
-	DictionarySourceFile = inkstoneProjectRootDir + `\data\pinyin_dictionary.txt`
+	DictionarySourceFile = workspaceRoot + `\scriptorium-inkstone\data\pinyin_dictionary.txt`
 )
 
 type ProjectArtifacts struct {
@@ -36,7 +35,7 @@ func BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
 		return nil, err
 	}
 
-	inkstoneExe, err := buildAndTestInkstone()
+	inkstoneExe, err := NewInkstone(workspaceRoot).buildAndTest()
 	if err != nil {
 		return nil, err
 	}
@@ -110,36 +109,3 @@ func buildAndTestBrush() (string, error) {
 	return artifact, nil
 }
 
-func buildAndTestInkstone() (string, error) {
-	fmt.Println("Building and testing Scriptorium Inkstone...")
-
-	buildDir := inkstoneProjectRootDir + `\build`
-
-	fmt.Println("Cleaning existing Inkstone build directory...")
-	if err := os.RemoveAll(buildDir); err != nil {
-		return "", fmt.Errorf("failed to clean Inkstone build directory: %w", err)
-	}
-
-	fmt.Println("Configuring Inkstone...")
-	if err := cmake.Configure(inkstoneProjectRootDir); err != nil {
-		return "", fmt.Errorf("failed to configure Inkstone: %w", err)
-	}
-
-	fmt.Println("Building Inkstone...")
-	if err := cmake.Build(inkstoneProjectRootDir); err != nil {
-		return "", fmt.Errorf("failed to build Inkstone: %w", err)
-	}
-
-	fmt.Println("Running Inkstone unit tests...")
-	if err := cmake.RunTests(inkstoneProjectRootDir, "inkstone-unit"); err != nil {
-		return "", fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
-	}
-
-	fmt.Println("Running Inkstone integration tests...")
-	if err := cmake.RunTests(inkstoneProjectRootDir, "inkstone-integration"); err != nil {
-		return "", fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
-	}
-
-	exe := inkstoneProjectRootDir + `\build\ScriptoriumLabIME\scriptorium-inkstone.exe`
-	return exe, nil
-}
