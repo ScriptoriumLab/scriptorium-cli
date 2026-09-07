@@ -1,4 +1,5 @@
-package project
+// Package cmake provides CMake and CTest operations for CMake-based projects.
+package cmake
 
 import (
 	"fmt"
@@ -6,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func cmakeConfigure(dir string) error {
+func Configure(dir string) error {
 	cmd := exec.Command(
 		"cmake",
 		"-S", ".",
@@ -27,7 +28,7 @@ func cmakeConfigure(dir string) error {
 	return nil
 }
 
-func cmakeBuild(dir string) error {
+func Build(dir string) error {
 	cmd := exec.Command(
 		"cmake",
 		"--build", "build",
@@ -44,7 +45,7 @@ func cmakeBuild(dir string) error {
 	return nil
 }
 
-func ctestRun(dir string, label string) error {
+func RunTests(dir string, label string) error {
 	cmd := exec.Command(
 		"ctest",
 		"--test-dir", "build",

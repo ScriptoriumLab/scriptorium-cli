@@ -4,6 +4,7 @@ package project
 import (
 	"fmt"
 	"os"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/build/cmake"
 )
 
 // TODO: Make the Scriptorium Project root directory configurable
@@ -65,17 +66,17 @@ func buildAndTestFelt() error {
 	}
 
 	fmt.Println("Configuring Felt...")
-	if err := cmakeConfigure(feltProjectRootDir); err != nil {
+	if err := cmake.Configure(feltProjectRootDir); err != nil {
 		return fmt.Errorf("failed to configure Felt: %w", err)
 	}
 
 	fmt.Println("Building Felt...")
-	if err := cmakeBuild(feltProjectRootDir); err != nil {
+	if err := cmake.Build(feltProjectRootDir); err != nil {
 		return fmt.Errorf("failed to build Felt: %w", err)
 	}
 
 	fmt.Println("Running Felt unit tests...")
-	if err := ctestRun(feltProjectRootDir, "felt-unit"); err != nil {
+	if err := cmake.RunTests(feltProjectRootDir, "felt-unit"); err != nil {
 		return fmt.Errorf("scriptorium felt tests failed: %w", err)
 	}
 
@@ -93,17 +94,17 @@ func buildAndTestBrush() (string, error) {
 	}
 
 	fmt.Println("Configuring Brush...")
-	if err := cmakeConfigure(brushProjectRootDir); err != nil {
+	if err := cmake.Configure(brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Brush: %w", err)
 	}
 
 	fmt.Println("Building Brush...")
-	if err := cmakeBuild(brushProjectRootDir); err != nil {
+	if err := cmake.Build(brushProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to build Brush: %w", err)
 	}
 
 	fmt.Println("Running Brush unit tests...")
-	if err := ctestRun(brushProjectRootDir, "brush-unit"); err != nil {
+	if err := cmake.RunTests(brushProjectRootDir, "brush-unit"); err != nil {
 		return "", fmt.Errorf("scriptorium brush tests failed: %w", err)
 	}
 
@@ -122,22 +123,22 @@ func buildAndTestInkstone() (string, error) {
 	}
 
 	fmt.Println("Configuring Inkstone...")
-	if err := cmakeConfigure(inkstoneProjectRootDir); err != nil {
+	if err := cmake.Configure(inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to configure Inkstone: %w", err)
 	}
 
 	fmt.Println("Building Inkstone...")
-	if err := cmakeBuild(inkstoneProjectRootDir); err != nil {
+	if err := cmake.Build(inkstoneProjectRootDir); err != nil {
 		return "", fmt.Errorf("failed to build Inkstone: %w", err)
 	}
 
 	fmt.Println("Running Inkstone unit tests...")
-	if err := ctestRun(inkstoneProjectRootDir, "inkstone-unit"); err != nil {
+	if err := cmake.RunTests(inkstoneProjectRootDir, "inkstone-unit"); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone unit tests failed: %w", err)
 	}
 
 	fmt.Println("Running Inkstone integration tests...")
-	if err := ctestRun(inkstoneProjectRootDir, "inkstone-integration"); err != nil {
+	if err := cmake.RunTests(inkstoneProjectRootDir, "inkstone-integration"); err != nil {
 		return "", fmt.Errorf("scriptorium inkstone integration tests failed: %w", err)
 	}
 
