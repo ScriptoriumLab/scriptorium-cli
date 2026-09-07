@@ -39,6 +39,44 @@ func (sandbox *Sandbox) CreateDir(path string) error {
 	return sandbox.RunCommand(command)
 }
 
+func (sandbox *Sandbox) CopyFile(source, destination string) error {
+	command := fmt.Sprintf(
+		`powershell.exe -NoProfile -Command "Copy-Item -Force '%s' '%s'"`,
+		source,
+		destination,
+	)
+
+	if err := sandbox.RunCommand(command); err != nil {
+		return fmt.Errorf(
+			"failed to copy file in Windows Sandbox from %q to %q: %w",
+			source,
+			destination,
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) ShareFolder(hostPath, sandboxPath string) error {
+	cmd := exec.Command(
+		"wsb", "share",
+		"--id", sandbox.id,
+		"--host-path", hostPath,
+		"--sandbox-path", sandboxPath,
+		"--raw",
+	)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to share folder with Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
 func (sandbox *Sandbox) waitForInteractiveSession() error {
 	if sandbox.interactiveReady {
         return nil
