@@ -1,5 +1,9 @@
 # Scriptorium CLI
 
+[![Scriptorium CLI Build CI](https://github.com/ScriptoriumLab/scriptorium-cli/actions/workflows/scriptorium-cli-build.yml/badge.svg)](https://github.com/ScriptoriumLab/scriptorium-cli/actions/workflows/scriptorium-cli-build.yml)
+
+[![Scriptorium CLI Release CI](https://github.com/ScriptoriumLab/scriptorium-cli/actions/workflows/scriptorium-cli-release.yml/badge.svg)](https://github.com/ScriptoriumLab/scriptorium-cli/actions/workflows/scriptorium-cli-release.yml)
+
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 > A cross-platform developer toolchain for building, running, testing, and maintaining Scriptorium development environments.
