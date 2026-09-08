@@ -196,65 +196,12 @@ func (sandboxCmd *sandboxCommand) createTestTextFile() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) runCustomizedNotepad() error {
-	const testFile = `C:\Users\WDAGUtilityAccount\Desktop\scriptorium-test.txt`
-
-	script := fmt.Sprintf(`
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-
-$path = '%s'
-
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Scriptorium Manual Test'
-$form.Width = 900
-$form.Height = 600
-$form.StartPosition = 'CenterScreen'
-
-$textBox = New-Object System.Windows.Forms.TextBox
-$textBox.Multiline = $true
-$textBox.Dock = 'Fill'
-$textBox.Font = New-Object System.Drawing.Font('Consolas', 16)
-$textBox.AcceptsReturn = $true
-$textBox.AcceptsTab = $true
-
-if (Test-Path $path) {
-    $textBox.Text = Get-Content $path -Raw
-}
-
-$form.Controls.Add($textBox)
-
-$form.Add_Shown({
-    $textBox.Focus()
-})
-
-$form.Add_FormClosing({
-    Set-Content -Path $path -Value $textBox.Text -Encoding UTF8
-})
-
-[void]$form.ShowDialog()
-`, testFile)
-
-	command := fmt.Sprintf(
-		`powershell.exe -NoProfile -Command "Start-Process powershell.exe -ArgumentList '-NoProfile','-Command',%q"`,
-		script,
-	)
-
-	if err := sandboxCmd.sandbox.RunCommand(command); err != nil {
-		return fmt.Errorf("failed to start customized Notepad in Windows Sandbox: %w", err)
-	}
-
-	return nil
-}
-
 func (sandboxCmd *sandboxCommand) startManualTest() error {
 	if err := sandboxCmd.createTestTextFile(); err != nil {
 		return err
 	}
 
-	if err := sandboxCmd.runCustomizedNotepad(); err != nil {
-		return err
-	}
+	// TODO: open notepad++
 
 	return nil
 }
