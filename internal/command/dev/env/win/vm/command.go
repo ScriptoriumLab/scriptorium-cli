@@ -13,35 +13,35 @@ import (
 
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
-type vmCommand struct {
+type Command struct {
 	machine *vmenv.VM
 	product *product.Product
 }
 
 // Ensure *vmCommand implements env.EnvCommand.
-var _ env.Command = (*vmCommand)(nil)
+var _ env.Command = (*Command)(nil)
 
-func NewCommand(product *product.Product) (*vmCommand, error) {
+func NewCommand(product *product.Product) (*Command, error) {
 	vmConfig, err := config.LoadVM()
 	if err != nil {
 		return nil, err
 	}
 
-	return &vmCommand{
+	return &Command{
 		machine: vmenv.New(vmConfig),
 		product: product,
 	}, nil
 }
 
-func (vmCmd *vmCommand) EnsureEnv() error {
+func (vmCmd *Command) EnsureEnv() error {
 	return vmCmd.machine.EnsureAvailable()
 }
 
-func (vmCmd *vmCommand) PrepareEnv() error {
+func (vmCmd *Command) PrepareEnv() error {
 	return vmCmd.machine.Prepare()
 }
 
-func (vmCmd *vmCommand) SetupProductPrerequisites() error {
+func (vmCmd *Command) SetupProductPrerequisites() error {
 	if err := vmCmd.machine.CreateDir(vmCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
@@ -53,7 +53,7 @@ func (vmCmd *vmCommand) SetupProductPrerequisites() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
+func (vmCmd *Command) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 	if err := vmCmd.machine.CreateDir(vmCmd.product.Config.ArtifactsPath); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
@@ -81,7 +81,7 @@ func (vmCmd *vmCommand) DeployArtifacts(artifacts *project.Artifacts, dictionary
 	return nil
 }
 
-func (vmCmd *vmCommand) StartProduct() error {
+func (vmCmd *Command) StartProduct() error {
 	if err := vmCmd.registerBrush(); err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (vmCmd *vmCommand) StartProduct() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) StartManualTests() error {
+func (vmCmd *Command) StartManualTests() error {
 	if err := vmCmd.runUseCase(); err != nil {
 		return err
 	}
@@ -97,15 +97,15 @@ func (vmCmd *vmCommand) StartManualTests() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) MonitorEnv() error {
+func (vmCmd *Command) MonitorEnv() error {
 	return vmCmd.machine.Monitor()
 }
 
-func (vmCmd *vmCommand) CleanupEnv() error {
+func (vmCmd *Command) CleanupEnv() error {
 	return vmCmd.machine.Cleanup()
 }
 
-func (vmCmd *vmCommand) registerBrush() error {
+func (vmCmd *Command) registerBrush() error {
 	fmt.Println("Registering Scriptorium Brush...")
 	if err := vmCmd.machine.RunProgramDetached(`C:\Windows\System32\regsvr32.exe`, "/s", vmCmd.product.Artifacts.BrushDLL); err != nil {
 		return fmt.Errorf("failed to register Brush DLL: %w", err)
@@ -114,7 +114,7 @@ func (vmCmd *vmCommand) registerBrush() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) runUseCase() error {
+func (vmCmd *Command) runUseCase() error {
 	fmt.Println("Running Scriptorium development use case...")
 	if err := vmCmd.machine.RunProgramDetached(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
 		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
