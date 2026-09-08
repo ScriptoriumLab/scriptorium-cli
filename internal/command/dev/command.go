@@ -16,6 +16,7 @@ type envCommand interface {
 
 	setupProductPrerequisites() error
 	deployArtifacts(artifacts *project.ProjectArtifacts) error
+	startProduct() error
 	startManualTests() error
 
 	monitorEnv() error
