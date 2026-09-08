@@ -1,16 +1,13 @@
 package vm
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"time"
 )
 
-func (vm *VM) Reset() error {
+func (vm *VM) reset() error {
 	fmt.Println("Resetting the development VM to baseline...")
 
 	cmd := exec.Command(
@@ -32,7 +29,7 @@ func (vm *VM) Reset() error {
 	return nil
 }
 
-func (vm *VM) Start() error {
+func (vm *VM) start() error {
 	fmt.Println("Starting the development VM...")
 
 	cmd := exec.Command(
@@ -52,41 +49,6 @@ func (vm *VM) Start() error {
 	}
 
 	return nil
-}
-
-func (vm *VM) Monitor() error {
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-	)
-	defer stop()
-
-	fmt.Println("Waiting for the development VM to stop...")
-
-	for {
-		select {
-		case <-ctx.Done():
-			fmt.Println("Interrupt received. Stopping development VM...")
-
-			if err := vm.stopVM(); err != nil {
-				return err
-			}
-
-			return nil
-		default:
-			running, err := vm.isRunning()
-			if err != nil {
-				return err
-			}
-
-			if !running {
-				fmt.Println("Development VM stopped.")
-				return nil
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
 }
 
 func (vm *VM) stopVM() error {

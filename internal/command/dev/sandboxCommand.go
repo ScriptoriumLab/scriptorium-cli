@@ -244,15 +244,7 @@ func (sandboxCmd *sandboxCommand) execute() error {
 		return err
 	}
 
-	if err := sandboxCmd.sandbox.Start(); err != nil {
-		return err
-	}
-
-	if err := sandboxCmd.sandbox.Connect(); err != nil {
-		return err
-	}
-
-	if err := sandboxCmd.sandbox.SetupEnv(); err != nil {
+	if err := sandboxCmd.sandbox.Prepare(); err != nil {
 		return err
 	}
 

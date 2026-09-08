@@ -49,7 +49,7 @@ func (vm *VM) CopyFile(src string, target string) error {
 	return nil
 }
 
-func (vm *VM) RunProgram(program string, args ...string) error {
+func (vm *VM) RunProgramDetached(program string, args ...string) error {
 	vmArgs := []string{
 		"-T", "ws",
 		"-vp", vm.config.VMEncryptionPassword,

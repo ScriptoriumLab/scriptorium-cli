@@ -59,7 +59,7 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) err
 
 func (vmCmd *vmCommand) registerBrush() error {
 	fmt.Println("Registering Scriptorium Brush...")
-	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\regsvr32.exe`, "/s", vmCmd.product.Artifacts.BrushDLL); err != nil {
+	if err := vmCmd.machine.RunProgramDetached(`C:\Windows\System32\regsvr32.exe`, "/s", vmCmd.product.Artifacts.BrushDLL); err != nil {
 		return fmt.Errorf("failed to register Brush DLL: %w", err)
 	}
 
@@ -68,7 +68,7 @@ func (vmCmd *vmCommand) registerBrush() error {
 
 func (vmCmd *vmCommand) runUseCase() error {
 	fmt.Println("Running Scriptorium development use case...")
-	if err := vmCmd.machine.RunProgram(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
+	if err := vmCmd.machine.RunProgramDetached(`C:\Windows\System32\schtasks.exe`, "/Run", "/TN", devUseCaseTaskName); err != nil {
 		return fmt.Errorf("failed to run Scriptorium development use case: %w", err)
 	}
 
@@ -110,11 +110,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := vmCmd.machine.Reset(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.machine.Start(); err != nil {
+	if err := vmCmd.machine.Prepare(); err != nil {
 		return err
 	}
 
@@ -134,7 +130,7 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 
-	if err := vmCmd.machine.Reset(); err != nil {
+	if err := vmCmd.machine.Cleanup(); err != nil {
 		return err
 	}
 

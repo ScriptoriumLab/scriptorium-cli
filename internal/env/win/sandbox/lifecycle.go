@@ -1,18 +1,16 @@
 package sandbox
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func (sandbox *Sandbox) Start() error {
+func (sandbox *Sandbox) start() error {
 	fmt.Println("Starting the development Windows Sandbox...")
 	cmd := exec.Command("wsb", "start",
 		"--id", sandbox.id,
@@ -28,7 +26,7 @@ func (sandbox *Sandbox) Start() error {
 	return nil
 }
 
-func (sandbox *Sandbox) Connect() error {
+func (sandbox *Sandbox) connect() error {
 	fmt.Println("Connecting to the development Windows Sandbox...")
 
 	before, err := getRemoteSessionPIDs()
@@ -105,45 +103,6 @@ exit 0
 	}
 
 	return pids, nil
-}
-
-func (sandbox *Sandbox) Monitor() error {
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-	)
-	defer stop()
-
-	fmt.Println("Waiting for the development windows sandbox to stop...")
-
-	for {
-		select {
-		case <-ctx.Done():
-			fmt.Println("Interrupt received. Stopping development widnows sandbox...")
-
-			if err := sandbox.stop(); err != nil {
-				return err
-			}
-
-			return nil
-		default:
-			running, err := sandbox.isRunning()
-			if err != nil {
-				return err
-			}
-
-			if !running {
-				if err := sandbox.stop(); err != nil {
-					return err
-				}
-
-				fmt.Println("Development windows sandbox stopped.")
-				return nil
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
 }
 
 func (sandbox *Sandbox) stop() error {
@@ -227,7 +186,7 @@ func (sandbox *Sandbox) installNotepadPlusPlus(dependenciesDir string) error {
 	return nil
 }
 
-func (sandbox *Sandbox) SetupEnv() error {
+func (sandbox *Sandbox) setupEnv() error {
 	if err := sandbox.ShareFolder(
 		sandbox.Config.HostDependenciesPath,
 		sandbox.Config.DependenciesPath,
@@ -250,11 +209,3 @@ func (sandbox *Sandbox) SetupEnv() error {
 	return nil
 }
 
-func (sandbox *Sandbox) Cleanup() error {
-	fmt.Println("Cleanup the development Windows Sandbox...")
-	if err := os.RemoveAll(sandbox.TempStagingDir); err != nil {
-		fmt.Printf("Failed to remove Sandbox staging directory %q: %v\n", sandbox.TempStagingDir, err)
-	}
-
-	return nil
-}
