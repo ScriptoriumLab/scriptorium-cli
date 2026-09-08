@@ -3,7 +3,7 @@ package env
 
 import "github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 
-type EnvCommand interface {
+type Command interface {
 	EnsureEnv() error
 	PrepareEnv() error
 

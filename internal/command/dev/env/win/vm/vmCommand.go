@@ -1,3 +1,4 @@
+// Package vm provides the implementation of the EnvCommand interface for managing a development environment on a Windows virtual machine.
 package vm
 
 import (
@@ -18,7 +19,7 @@ type vmCommand struct {
 }
 
 // Ensure *vmCommand implements env.EnvCommand.
-var _ env.EnvCommand = (*vmCommand)(nil)
+var _ env.Command = (*vmCommand)(nil)
 
 func NewCommand(product *product.Product) (*vmCommand, error) {
 	vmConfig, err := config.LoadVM()

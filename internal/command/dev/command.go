@@ -16,7 +16,7 @@ import (
 type devCommand struct {
 	workspace  *project.Workspace
 	product    *product.Product
-	envCommand env.EnvCommand
+	envCommand env.Command
 }
 
 type devEnv string

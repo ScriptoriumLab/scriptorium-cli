@@ -20,7 +20,7 @@ type sandboxCommand struct {
 }
 
 // Ensure *sandboxCommand implements env.envCommand.
-var _ env.EnvCommand = (*sandboxCommand)(nil)
+var _ env.Command = (*sandboxCommand)(nil)
 
 func NewCommand(product *product.Product) (*sandboxCommand, error) {
 	sandboxConfig, err := config.LoadSandbox()
