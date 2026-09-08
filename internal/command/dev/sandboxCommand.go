@@ -15,7 +15,6 @@ import (
 type sandboxCommand struct {
 	sandbox   *sandbox.Sandbox
 	product   *product.Product
-	dictionarySourcePath string
 }
 
 // Ensure *sandboxCommand implements envCommand.
@@ -123,9 +122,7 @@ func (sandboxCmd *sandboxCommand) prepareEnv() error {
 	return sandboxCmd.sandbox.Prepare()
 }
 
-func (sandboxCmd *sandboxCommand) setupProductPrerequisites(dictionarySourcePath string) error {
-	sandboxCmd.dictionarySourcePath = dictionarySourcePath
-
+func (sandboxCmd *sandboxCommand) setupProductPrerequisites() error {
 	if err := sandboxCmd.sandbox.CreateDir(sandboxCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in Windows Sandbox: %w", err)
 	}
@@ -141,7 +138,7 @@ func (sandboxCmd *sandboxCommand) setupProductPrerequisites(dictionarySourcePath
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) deployArtifacts(artifacts *project.ProjectArtifacts) error {
+func (sandboxCmd *sandboxCommand) deployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development Windows Sandbox...")
 
 	stagingDir, err := os.MkdirTemp("", "scriptorium-sandbox-*")
@@ -172,7 +169,7 @@ func (sandboxCmd *sandboxCommand) deployArtifacts(artifacts *project.ProjectArti
 	}
 
 	if err := copyFile(
-		sandboxCmd.dictionarySourcePath,
+		dictionarySourcePath,
 		filepath.Join(stagingDir, "pinyin_dictionary.txt"),
 	); err != nil {
 		return err

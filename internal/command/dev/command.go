@@ -14,8 +14,8 @@ type envCommand interface {
 	ensureEnv() error
 	prepareEnv() error
 
-	setupProductPrerequisites(dictionarySourcePath string) error
-	deployArtifacts(artifacts *project.ProjectArtifacts) error
+	setupProductPrerequisites() error
+	deployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error
 	startProduct() error
 	startManualTests() error
 
@@ -106,11 +106,11 @@ func (cmd *devCommand) execute() error {
 		return err
 	}
 
-	if err := cmd.envCommand.setupProductPrerequisites(cmd.workspace.Dictionary().SourceFile()); err != nil {
+	if err := cmd.envCommand.setupProductPrerequisites(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.deployArtifacts(artifacts); err != nil {
+	if err := cmd.envCommand.deployArtifacts(artifacts, cmd.workspace.Dictionary().SourceFile()); err != nil {
 		return err
 	}
 

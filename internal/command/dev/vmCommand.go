@@ -39,7 +39,7 @@ func (vmCmd *vmCommand) prepareEnv() error {
 	return vmCmd.machine.Prepare()
 }
 
-func (vmCmd *vmCommand) setupProductPrerequisites(dictionarySourcePath string) error {
+func (vmCmd *vmCommand) setupProductPrerequisites() error {
 	if err := vmCmd.machine.CreateDir(vmCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
@@ -48,14 +48,10 @@ func (vmCmd *vmCommand) setupProductPrerequisites(dictionarySourcePath string) e
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(dictionarySourcePath, vmCmd.product.DictionaryPath); err != nil {
-		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
-	}
-
 	return nil
 }
 
-func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) error {
+func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 	if err := vmCmd.machine.CreateDir(vmCmd.product.Config.ArtifactsPath); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
@@ -74,6 +70,10 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) err
 	fmt.Println("Deploying Ink executable...")
 	if err := vmCmd.machine.CopyFile(artifacts.InkEXE, vmCmd.product.Artifacts.InkEXE); err != nil {
 		return fmt.Errorf("failed to deploy Ink executable: %w", err)
+	}
+
+	if err := vmCmd.machine.CopyFile(dictionarySourcePath, vmCmd.product.DictionaryPath); err != nil {
+		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
 	return nil
