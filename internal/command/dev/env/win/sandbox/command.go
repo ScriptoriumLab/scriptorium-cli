@@ -14,35 +14,35 @@ import (
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 )
 
-type sandboxCommand struct {
+type Command struct {
 	sandbox   *sandboxenv.Sandbox
 	product   *product.Product
 }
 
 // Ensure *sandboxCommand implements env.envCommand.
-var _ env.Command = (*sandboxCommand)(nil)
+var _ env.Command = (*Command)(nil)
 
-func NewCommand(product *product.Product) (*sandboxCommand, error) {
+func NewCommand(product *product.Product) (*Command, error) {
 	sandboxConfig, err := config.LoadSandbox()
 	if err != nil {
 		return nil, err
 	}
 
-	return &sandboxCommand{
+	return &Command{
 		sandbox: sandboxenv.New(sandboxConfig),
 		product: product,
 	}, nil
 }
 
-func (sandboxCmd *sandboxCommand) EnsureEnv() error {
+func (sandboxCmd *Command) EnsureEnv() error {
 	return sandboxCmd.sandbox.EnsureAvailable()
 }
 
-func (sandboxCmd *sandboxCommand) PrepareEnv() error {
+func (sandboxCmd *Command) PrepareEnv() error {
 	return sandboxCmd.sandbox.Prepare()
 }
 
-func (sandboxCmd *sandboxCommand) SetupProductPrerequisites() error {
+func (sandboxCmd *Command) SetupProductPrerequisites() error {
 	if err := sandboxCmd.sandbox.CreateDir(sandboxCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in Windows Sandbox: %w", err)
 	}
@@ -58,7 +58,7 @@ func (sandboxCmd *sandboxCommand) SetupProductPrerequisites() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
+func (sandboxCmd *Command) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development Windows Sandbox...")
 
 	stagingDir, err := os.MkdirTemp("", "scriptorium-sandbox-*")
@@ -135,7 +135,7 @@ func (sandboxCmd *sandboxCommand) DeployArtifacts(artifacts *project.Artifacts, 
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) StartProduct() error {
+func (sandboxCmd *Command) StartProduct() error {
 	if err := sandboxCmd.registerBrush(); err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (sandboxCmd *sandboxCommand) StartProduct() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) StartManualTests() error {
+func (sandboxCmd *Command) StartManualTests() error {
 	if err := sandboxCmd.createTestTextFile(); err != nil {
 		return err
 	}
@@ -163,11 +163,11 @@ func (sandboxCmd *sandboxCommand) StartManualTests() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) MonitorEnv() error {
+func (sandboxCmd *Command) MonitorEnv() error {
 	return sandboxCmd.sandbox.Monitor()
 }
 
-func (sandboxCmd *sandboxCommand) CleanupEnv() error {
+func (sandboxCmd *Command) CleanupEnv() error {
 	return sandboxCmd.sandbox.Cleanup()
 }
 
@@ -188,7 +188,7 @@ func copyFile(src, dst string) error {
 	return err
 }
 
-func (sandboxCmd *sandboxCommand) registerBrush() error {
+func (sandboxCmd *Command) registerBrush() error {
 	command := fmt.Sprintf(
 		`regsvr32.exe /s "%s"`,
 		sandboxCmd.product.Artifacts.BrushDLL,
@@ -201,7 +201,7 @@ func (sandboxCmd *sandboxCommand) registerBrush() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) startInkstone() error {
+func (sandboxCmd *Command) startInkstone() error {
 	if err := sandboxCmd.sandbox.RunProgramDetached(
 		sandboxCmd.product.Artifacts.InkstoneEXE,
 	); err != nil {
@@ -214,7 +214,7 @@ func (sandboxCmd *sandboxCommand) startInkstone() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) startInk() error {
+func (sandboxCmd *Command) startInk() error {
 	command := fmt.Sprintf(
 		`powershell.exe -NoProfile -Command "$env:WEBVIEW2_BROWSER_EXECUTABLE_FOLDER='%s'; Start-Process -FilePath '%s'"`,
 		sandboxCmd.sandbox.Config.WebView2BrowserExecutableFolder,
@@ -228,7 +228,7 @@ func (sandboxCmd *sandboxCommand) startInk() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) createTestTextFile() error {
+func (sandboxCmd *Command) createTestTextFile() error {
 	if err := sandboxCmd.sandbox.CreateFile(sandboxCmd.sandbox.Config.TestFilePath); err != nil {
 		return fmt.Errorf(
 			"failed to create manual test text file in Windows Sandbox: %w",
@@ -239,7 +239,7 @@ func (sandboxCmd *sandboxCommand) createTestTextFile() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) runNotepadPlusPlus() error {
+func (sandboxCmd *Command) runNotepadPlusPlus() error {
 	command := fmt.Sprintf(
 		`powershell.exe -NoProfile -Command "Start-Process -FilePath '%s' -ArgumentList '%s'"`,
 		sandboxCmd.sandbox.Config.NotepadPlusPlusPath,
