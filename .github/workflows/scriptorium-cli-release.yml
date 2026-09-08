@@ -1,0 +1,66 @@
+name: Scriptorium CLI Release CI
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing Git tag to release, for example v0.1.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    name: Release Windows amd64
+    runs-on: windows-latest
+
+    env:
+      TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build orium
+        run: go build -trimpath -o dist/orium.exe ./cmd/orium
+
+      - name: Create release archive
+        shell: pwsh
+        run: |
+          $archive = "orium-$env:TAG-windows-amd64.zip"
+          Compress-Archive -Path dist/orium.exe -DestinationPath $archive
+          "ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if (gh release view "$env:TAG" --repo "$env:GITHUB_REPOSITORY" 2>$null) {
+            gh release upload "$env:TAG" "$env:ARCHIVE" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --clobber
+          }
+          else {
+            gh release create "$env:TAG" "$env:ARCHIVE" `
+              --repo "$env:GITHUB_REPOSITORY" `
+              --title "$env:TAG" `
+              --generate-notes
+          }

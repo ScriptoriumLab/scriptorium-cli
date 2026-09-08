@@ -1,0 +1,42 @@
+name: Scriptorium CLI Build CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows amd64
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build orium
+        run: go build -trimpath -o dist/orium.exe ./cmd/orium
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: orium-windows-amd64
+          path: dist/orium.exe
+          if-no-files-found: error
+          retention-days: 7
