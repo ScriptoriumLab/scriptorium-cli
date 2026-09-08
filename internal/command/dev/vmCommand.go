@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
+	vmenv "github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 )
@@ -12,7 +12,7 @@ import (
 const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
 type vmCommand struct {
-	machine *vm.VM
+	machine *vmenv.VM
 	product *product.Product
 }
 
@@ -26,7 +26,7 @@ func newVMCommand(product *product.Product) (*vmCommand, error) {
 	}
 
 	return &vmCommand{
-		machine: vm.New(vmConfig),
+		machine: vmenv.New(vmConfig),
 		product: product,
 	}, nil
 }

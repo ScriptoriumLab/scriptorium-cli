@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/sandbox"
+	sandboxenv "github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/sandbox"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 )
 
 type sandboxCommand struct {
-	sandbox   *sandbox.Sandbox
+	sandbox   *sandboxenv.Sandbox
 	product   *product.Product
 }
 
@@ -109,7 +109,7 @@ func newSandboxCommand(product *product.Product) (*sandboxCommand, error) {
 	}
 
 	return &sandboxCommand{
-		sandbox: sandbox.New(sandboxConfig),
+		sandbox: sandboxenv.New(sandboxConfig),
 		product: product,
 	}, nil
 }
