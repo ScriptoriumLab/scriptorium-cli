@@ -4,8 +4,16 @@ package dev
 import (
 	"fmt"
 
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 	"github.com/spf13/cobra"
 )
+
+type devCommand struct {
+	workspace *project.Workspace
+	product   *product.Product
+}
 
 type devEnv string
 
@@ -21,15 +29,20 @@ var devCmd = &cobra.Command{
 	Short: "Prepare and start a complete local development environment.",
 	Long:  `The dev command sets up and starts a complete local development environment for Scriptorium.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		devCommand, err := newDevCommand()
+		if err != nil {
+			return err
+		}
+
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := newVMCommand().execute(); err != nil {
+			if err := newVMCommand(devCommand).execute(); err != nil {
 				return err
 			}
 
 			return nil
 		case devEnvSandbox:
-			if err := newSandboxCommand().execute(); err != nil {
+			if err := newSandboxCommand(devCommand).execute(); err != nil {
 				return err
 			}
 
@@ -38,6 +51,23 @@ var devCmd = &cobra.Command{
 			return fmt.Errorf("unsupported development environment: %s", env)
 		}
 	},
+}
+
+func newDevCommand() (*devCommand, error) {
+	devCmd := &devCommand{}
+	workspaceConfig, err := config.LoadWorkspace()
+	if err != nil {
+		return nil, err
+	}
+	devCmd.workspace = project.NewWorkspace(workspaceConfig)
+
+	productConfig, err := config.LoadProduct()
+	if err != nil {
+		return nil, err
+	}
+	devCmd.product = product.NewProduct(productConfig)
+
+	return devCmd, nil
 }
 
 func NewCommand() *cobra.Command {
