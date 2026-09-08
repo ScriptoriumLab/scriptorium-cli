@@ -10,19 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type envCommand interface {
-	ensureEnv() error
-	prepareEnv() error
-
-	setupProductPrerequisites() error
-	deployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error
-	startProduct() error
-	startManualTests() error
-
-	monitorEnv() error
-	cleanupEnv() error
-}
-
 type devCommand struct {
 	workspace  *project.Workspace
 	product    *product.Product
