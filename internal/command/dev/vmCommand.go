@@ -13,11 +13,33 @@ const devUseCaseTaskName = "Scriptorium Dev Use Case"
 
 type vmCommand struct {
 	machine *vm.VM
-	workspace *project.Workspace
 	product *product.Product
 }
 
-func (vmCmd *vmCommand) setupScriptoriumEnv() error {
+// Ensure *vmCommand implements envCommand.
+var _ envCommand = (*vmCommand)(nil)
+
+func newVMCommand(product *product.Product) (*vmCommand, error) {
+	vmConfig, err := config.LoadVM()
+	if err != nil {
+		return nil, err
+	}
+
+	return &vmCommand{
+		machine: vm.New(vmConfig),
+		product: product,
+	}, nil
+}
+
+func (vmCmd *vmCommand) ensureEnv() error {
+	return vmCmd.machine.EnsureAvailable()
+}
+
+func (vmCmd *vmCommand) prepareEnv() error {
+	return vmCmd.machine.Prepare()
+}
+
+func (vmCmd *vmCommand) setupProductPrerequisites(dictionarySourcePath string) error {
 	if err := vmCmd.machine.CreateDir(vmCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
@@ -26,7 +48,7 @@ func (vmCmd *vmCommand) setupScriptoriumEnv() error {
 		return fmt.Errorf("failed to create local directory in VM: %w", err)
 	}
 
-	if err := vmCmd.machine.CopyFile(vmCmd.workspace.Dictionary().SourceFile(), vmCmd.product.DictionaryPath); err != nil {
+	if err := vmCmd.machine.CopyFile(dictionarySourcePath, vmCmd.product.DictionaryPath); err != nil {
 		return fmt.Errorf("failed to copy dictionary file to VM: %w", err)
 	}
 
@@ -57,6 +79,30 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts) err
 	return nil
 }
 
+func (vmCmd *vmCommand) startProduct() error {
+	if err := vmCmd.registerBrush(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (vmCmd *vmCommand) startManualTests() error {
+	if err := vmCmd.runUseCase(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (vmCmd *vmCommand) monitorEnv() error {
+	return vmCmd.machine.Monitor()
+}
+
+func (vmCmd *vmCommand) cleanupEnv() error {
+	return vmCmd.machine.Cleanup()
+}
+
 func (vmCmd *vmCommand) registerBrush() error {
 	fmt.Println("Registering Scriptorium Brush...")
 	if err := vmCmd.machine.RunProgramDetached(`C:\Windows\System32\regsvr32.exe`, "/s", vmCmd.product.Artifacts.BrushDLL); err != nil {
@@ -75,73 +121,3 @@ func (vmCmd *vmCommand) runUseCase() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) startProduct() error {
-	if err := vmCmd.registerBrush(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.runUseCase(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func newVMCommand() *vmCommand {
-	return &vmCommand{}
-}
-
-func (vmCmd *vmCommand) execute() error {
-	vmConfig, err := config.LoadVM()
-	if err != nil {
-		return err
-	}
-	vmCmd.machine = vm.New(vmConfig)
-
-	workspaceConfig, err := config.LoadWorkspace()
-	if err != nil {
-		return err
-	}
-	vmCmd.workspace = project.NewWorkspace(workspaceConfig)
-
-	productConfig, err := config.LoadProduct()
-	if err != nil {
-		return err
-	}
-	vmCmd.product = product.NewProduct(productConfig)
-
-	if err := vmCmd.machine.EnsureAvailable(); err != nil {
-		return err
-	}
-
-	artifacts, err := vmCmd.workspace.BuildScriptoriumAndRunAllTests()
-	if err != nil {
-		return err
-	}
-
-	if err := vmCmd.machine.Prepare(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.setupScriptoriumEnv(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.deployArtifacts(artifacts); err != nil {
-		return err
-	}
-
-	if err := vmCmd.startProduct(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.machine.Monitor(); err != nil {
-		return err
-	}
-
-	if err := vmCmd.machine.Cleanup(); err != nil {
-		return err
-	}
-
-	return nil
-}

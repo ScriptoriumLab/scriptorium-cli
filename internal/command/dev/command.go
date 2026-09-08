@@ -14,7 +14,7 @@ type envCommand interface {
 	ensureEnv() error
 	prepareEnv() error
 
-	setupProductPrerequisites() error
+	setupProductPrerequisites(dictionarySourcePath string) error
 	deployArtifacts(artifacts *project.ProjectArtifacts) error
 	startProduct() error
 	startManualTests() error
@@ -42,23 +42,36 @@ var devCmd = &cobra.Command{
 	Use:   "dev",
 	Short: "Prepare and start a complete local development environment.",
 	Long:  `The dev command sets up and starts a complete local development environment for Scriptorium.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
+		cmd, err := newDevCommand()
+		if err != nil {
+			return err
+		}
+
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := newVMCommand().execute(); err != nil {
+			vmCmd, err := newVMCommand(cmd.product)
+			if err != nil {
 				return err
 			}
+			cmd.envCommand = vmCmd
 
-			return nil
 		case devEnvSandbox:
-			if err := newSandboxCommand().execute(); err != nil {
+			sandboxCmd, err := newSandboxCommand(cmd.product)
+			if err != nil {
 				return err
 			}
+			cmd.envCommand = sandboxCmd
 
-			return nil
 		default:
 			return fmt.Errorf("unsupported development environment: %s", env)
 		}
+
+		if err := cmd.execute(); err != nil {
+			return err
+		}
+
+		return nil
 	},
 }
 
@@ -77,6 +90,47 @@ func newDevCommand() (*devCommand, error) {
 	devCmd.product = product.NewProduct(productConfig)
 
 	return devCmd, nil
+}
+
+func (cmd *devCommand) execute() error {
+	if err := cmd.envCommand.ensureEnv(); err != nil {
+		return err
+	}
+
+	artifacts, err := cmd.workspace.BuildScriptoriumAndRunAllTests()
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.prepareEnv(); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.setupProductPrerequisites(cmd.workspace.Dictionary().SourceFile()); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.deployArtifacts(artifacts); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.startProduct(); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.startManualTests(); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.monitorEnv(); err != nil {
+		return err
+	}
+
+	if err := cmd.envCommand.cleanupEnv(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewCommand() *cobra.Command {
