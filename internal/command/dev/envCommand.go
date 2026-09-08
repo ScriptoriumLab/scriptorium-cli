@@ -1,6 +1,10 @@
 package dev
 
-import "github.com/ScriptoriumLab/scriptorium-cli/internal/project"
+import (
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/sandbox"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/vm"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
+)
 
 type envCommand interface {
 	EnsureEnv() error
@@ -14,3 +18,9 @@ type envCommand interface {
 	MonitorEnv() error
 	CleanupEnv() error
 }
+
+// Ensure specific environment command implements dev.envCommand.
+var (
+    _ envCommand = (*vm.Command)(nil)
+    _ envCommand = (*sandbox.Command)(nil)
+)

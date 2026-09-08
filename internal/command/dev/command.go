@@ -39,9 +39,6 @@ var devCmd = &cobra.Command{
 
 		switch devEnv(envFlag) {
 		case devEnvVM:
-			// Ensure *vmCommand implements envEnvCommand.
-			var _ envCommand = (*vm.Command)(nil)
-
 			vmCmd, err := vm.NewCommand(cmd.product)
 			if err != nil {
 				return err
@@ -49,9 +46,6 @@ var devCmd = &cobra.Command{
 			cmd.envCommand = vmCmd
 
 		case devEnvSandbox:
-			// Ensure *sandboxCommand implements envenvCommand.
-			var _ envCommand = (*sandbox.Command)(nil)
-
 			sandboxCmd, err := sandbox.NewCommand(cmd.product)
 			if err != nil {
 				return err
