@@ -221,11 +221,8 @@ func (sandboxCmd *sandboxCommand) startManualTest() error {
 	return nil
 }
 
-func newSandboxCommand(devCommand *devCommand) *sandboxCommand {
-	return &sandboxCommand{
-		workspace: devCommand.workspace,
-		product: devCommand.product,
-	}
+func newSandboxCommand() *sandboxCommand {
+	return &sandboxCommand{}
 }
 
 func (sandboxCmd *sandboxCommand) execute() error {
@@ -234,6 +231,19 @@ func (sandboxCmd *sandboxCommand) execute() error {
 		return err
 	}
 	sandboxCmd.sandbox = sandbox.New(sandboxConfig)
+
+	workspaceConfig, err := config.LoadWorkspace()
+	if err != nil {
+		return err
+	}
+	sandboxCmd.workspace = project.NewWorkspace(workspaceConfig)
+
+	productConfig, err := config.LoadProduct()
+	if err != nil {
+		return err
+	}
+	sandboxCmd.product = product.NewProduct(productConfig)
+
 
 	if err := sandboxCmd.sandbox.EnsureAvailable(); err != nil {
 		return err

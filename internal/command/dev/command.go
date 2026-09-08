@@ -10,15 +10,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type envCommand interface {
+	ensureEnv() error
+	prepareEnv() error
+
+	setupProductPrerequisites() error
+	deployArtifacts(artifacts *project.ProjectArtifacts) error
+	startManualTests() error
+
+	monitorEnv() error
+	cleanupEnv() error
+}
+
 type devCommand struct {
-	workspace *project.Workspace
-	product   *product.Product
+	workspace  *project.Workspace
+	product    *product.Product
+	envCommand envCommand
 }
 
 type devEnv string
 
 const (
-	devEnvVM devEnv = "vm"
+	devEnvVM      devEnv = "vm"
 	devEnvSandbox devEnv = "sandbox"
 )
 
@@ -29,20 +42,15 @@ var devCmd = &cobra.Command{
 	Short: "Prepare and start a complete local development environment.",
 	Long:  `The dev command sets up and starts a complete local development environment for Scriptorium.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		devCommand, err := newDevCommand()
-		if err != nil {
-			return err
-		}
-
 		switch devEnv(env) {
 		case devEnvVM:
-			if err := newVMCommand(devCommand).execute(); err != nil {
+			if err := newVMCommand().execute(); err != nil {
 				return err
 			}
 
 			return nil
 		case devEnvSandbox:
-			if err := newSandboxCommand(devCommand).execute(); err != nil {
+			if err := newSandboxCommand().execute(); err != nil {
 				return err
 			}
 

@@ -87,11 +87,8 @@ func (vmCmd *vmCommand) startProduct() error {
 	return nil
 }
 
-func newVMCommand(devCommand *devCommand) *vmCommand {
-	return &vmCommand{
-		workspace: devCommand.workspace,
-		product: devCommand.product,
-	}
+func newVMCommand() *vmCommand {
+	return &vmCommand{}
 }
 
 func (vmCmd *vmCommand) execute() error {
@@ -100,6 +97,18 @@ func (vmCmd *vmCommand) execute() error {
 		return err
 	}
 	vmCmd.machine = vm.New(vmConfig)
+
+	workspaceConfig, err := config.LoadWorkspace()
+	if err != nil {
+		return err
+	}
+	vmCmd.workspace = project.NewWorkspace(workspaceConfig)
+
+	productConfig, err := config.LoadProduct()
+	if err != nil {
+		return err
+	}
+	vmCmd.product = product.NewProduct(productConfig)
 
 	if err := vmCmd.machine.EnsureAvailable(); err != nil {
 		return err
