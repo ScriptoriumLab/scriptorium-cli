@@ -58,7 +58,7 @@ func (sandboxCmd *sandboxCommand) SetupProductPrerequisites() error {
 	return nil
 }
 
-func (sandboxCmd *sandboxCommand) DeployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
+func (sandboxCmd *sandboxCommand) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development Windows Sandbox...")
 
 	stagingDir, err := os.MkdirTemp("", "scriptorium-sandbox-*")

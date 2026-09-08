@@ -53,7 +53,7 @@ func (vmCmd *vmCommand) SetupProductPrerequisites() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) DeployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
+func (vmCmd *vmCommand) DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 	if err := vmCmd.machine.CreateDir(vmCmd.product.Config.ArtifactsPath); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)

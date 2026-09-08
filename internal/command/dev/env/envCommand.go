@@ -8,7 +8,7 @@ type Command interface {
 	PrepareEnv() error
 
 	SetupProductPrerequisites() error
-	DeployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error
+	DeployArtifacts(artifacts *project.Artifacts, dictionarySourcePath string) error
 	StartProduct() error
 	StartManualTests() error
 

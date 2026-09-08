@@ -7,7 +7,7 @@ import (
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 )
 
-type ProjectArtifacts struct {
+type Artifacts struct {
 	BrushDLL    string
 	InkstoneEXE string
 	InkEXE      string
@@ -23,7 +23,7 @@ func NewWorkspace(config *config.WorkspaceConfig) *Workspace {
 	}
 }
 
-func (workspace *Workspace) BuildScriptoriumAndRunAllTests() (*ProjectArtifacts, error) {
+func (workspace *Workspace) BuildScriptoriumAndRunAllTests() (*Artifacts, error) {
 	fmt.Println("Building Scriptorium and running all tests...")
 	if err := workspace.Felt().buildAndTest(); err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (workspace *Workspace) BuildScriptoriumAndRunAllTests() (*ProjectArtifacts,
 		return nil, err
 	}
 
-	return &ProjectArtifacts{
+	return &Artifacts{
 		BrushDLL:    brushDll,
 		InkstoneEXE: inkstoneExe,
 		InkEXE:      inkExe,
