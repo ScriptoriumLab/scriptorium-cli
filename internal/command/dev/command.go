@@ -41,7 +41,7 @@ var devCmd = &cobra.Command{
 }
 
 func NewCommand() *cobra.Command {
-	devCmd.Flags().StringVarP(&env, "env", "E", "vm", "development environment to use")
+	devCmd.Flags().StringVarP(&env, "env", "E", "sandbox", "development environment to use")
 
 	return devCmd
 }
