@@ -156,7 +156,8 @@ func (sandboxCmd *sandboxCommand) startInkstone() error {
 
 func (sandboxCmd *sandboxCommand) startInk() error {
 	command := fmt.Sprintf(
-		`powershell.exe -NoProfile -Command "$env:WEBVIEW2_BROWSER_EXECUTABLE_FOLDER='C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.66'; Start-Process -FilePath '%s'"`,
+		`powershell.exe -NoProfile -Command "$env:WEBVIEW2_BROWSER_EXECUTABLE_FOLDER='%s'; Start-Process -FilePath '%s'"`,
+		sandboxCmd.sandbox.Config.WebView2BrowserExecutableFolder,
 		sandboxCmd.product.Artifacts.InkEXE,
 	)
 
@@ -184,9 +185,7 @@ func (sandboxCmd *sandboxCommand) startProduct() error {
 }
 
 func (sandboxCmd *sandboxCommand) createTestTextFile() error {
-	const testFile = `C:\Users\WDAGUtilityAccount\Desktop\scriptorium-test.txt`
-
-	if err := sandboxCmd.sandbox.CreateFile(testFile); err != nil {
+	if err := sandboxCmd.sandbox.CreateFile(sandboxCmd.sandbox.Config.TestFilePath); err != nil {
 		return fmt.Errorf(
 			"failed to create manual test text file in Windows Sandbox: %w",
 			err,
@@ -197,13 +196,10 @@ func (sandboxCmd *sandboxCommand) createTestTextFile() error {
 }
 
 func (sandboxCmd *sandboxCommand) runNotepadPlusPlus() error {
-	const notepadPlusPlus = `C:\Program Files\Notepad++\notepad++.exe`
-	const testFile = `C:\Users\WDAGUtilityAccount\Desktop\scriptorium-test.txt`
-
 	command := fmt.Sprintf(
 		`powershell.exe -NoProfile -Command "Start-Process -FilePath '%s' -ArgumentList '%s'"`,
-		notepadPlusPlus,
-		testFile,
+		sandboxCmd.sandbox.Config.NotepadPlusPlusPath,
+		sandboxCmd.sandbox.Config.TestFilePath,
 	)
 
 	if err := sandboxCmd.sandbox.RunCommand(command); err != nil {
@@ -230,7 +226,11 @@ func newSandboxCommand() *sandboxCommand {
 }
 
 func (sandboxCmd *sandboxCommand) execute() error {
-	sandboxCmd.sandbox = sandbox.New()
+	sandboxConfig, err := config.LoadSandbox()
+	if err != nil {
+		return err
+	}
+	sandboxCmd.sandbox = sandbox.New(sandboxConfig)
 	workspaceConfig, err := config.LoadWorkspace()
 	if err != nil {
 		return err

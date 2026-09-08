@@ -109,3 +109,46 @@ func LoadProduct() (*ProductConfig, error) {
 
 	return config, nil
 }
+
+type SandboxConfig struct {
+    WebView2BrowserExecutableFolder string
+    NotepadPlusPlusPath             string
+    TestFilePath                    string
+    HostDependenciesPath            string
+	DependenciesPath                string
+}
+
+
+func LoadSandbox() (*SandboxConfig, error) {
+	fmt.Println("Loading windows sandbox configuration...")
+
+	if err := godotenv.Load(".sandbox.env"); err != nil {
+		return nil, fmt.Errorf("failed to load .sandbox.env file: %w", err)
+	}
+
+	config := &SandboxConfig{
+		WebView2BrowserExecutableFolder: os.Getenv("ORIUM_SANDBOX_WEBVIEW2_BROWSER_EXECUTABLE_FOLDER"),
+		NotepadPlusPlusPath:             os.Getenv("ORIUM_SANDBOX_NOTEPAD_PLUS_PLUS_PATH"),
+		TestFilePath:                    os.Getenv("ORIUM_SANDBOX_TEST_FILE_PATH"),
+		HostDependenciesPath:            os.Getenv("ORIUM_SANDBOX_HOST_DEPENDENCIES_PATH"),
+		DependenciesPath:                os.Getenv("ORIUM_SANDBOX_DEPENDENCIES_PATH"),
+	}
+
+	if config.WebView2BrowserExecutableFolder == "" {
+		return nil, fmt.Errorf("ORIUM_SANDBOX_WEBVIEW2_BROWSER_EXECUTABLE_FOLDER is not configured")
+	}
+
+	if config.NotepadPlusPlusPath == "" {
+		return nil, fmt.Errorf("ORIUM_SANDBOX_NOTEPAD_PLUS_PLUS_PATH is not configured")
+	}
+
+	if config.TestFilePath == "" {
+		return nil, fmt.Errorf("ORIUM_SANDBOX_TEST_FILE_PATH is not configured")
+	}
+
+	if config.HostDependenciesPath == "" {
+		return nil, fmt.Errorf("ORIUM_SANDBOX_HOST_DEPENDENCIES_PATH is not configured")
+	}
+
+	return config, nil
+}

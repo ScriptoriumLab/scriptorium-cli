@@ -228,25 +228,22 @@ func (sandbox *Sandbox) installNotepadPlusPlus(dependenciesDir string) error {
 }
 
 func (sandbox *Sandbox) SetupEnv() error {
-	const hostDependenciesDir = `D:\Projects\Scriptorium\dependencies`
-	const sandboxDependenciesDir = `C:\ScriptoriumDependencies`
-
 	if err := sandbox.ShareFolder(
-		hostDependenciesDir,
-		sandboxDependenciesDir,
+		sandbox.Config.HostDependenciesPath,
+		sandbox.Config.DependenciesPath,
 	); err != nil {
 		return fmt.Errorf("failed to share Sandbox dependencies: %w", err)
 	}
 
-	if err := sandbox.installVCRuntime(sandboxDependenciesDir); err != nil {
+	if err := sandbox.installVCRuntime(sandbox.Config.DependenciesPath); err != nil {
 		return err
 	}
 
-	if err := sandbox.installWebView2(sandboxDependenciesDir); err != nil {
+	if err := sandbox.installWebView2(sandbox.Config.DependenciesPath); err != nil {
 		return err
 	}
 
-	if err := sandbox.installNotepadPlusPlus(sandboxDependenciesDir); err != nil {
+	if err := sandbox.installNotepadPlusPlus(sandbox.Config.DependenciesPath); err != nil {
 		return err
 	}
 

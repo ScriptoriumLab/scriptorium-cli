@@ -6,18 +6,21 @@ import (
 	"io"
 	"os/exec"
 
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	"github.com/google/uuid"
 )
 
 type Sandbox struct {
+	Config           *config.SandboxConfig
 	id               string
 	remoteSessionPID int
 	interactiveReady bool
 	TempStagingDir   string
 }
 
-func New() *Sandbox {
+func New(config *config.SandboxConfig) *Sandbox {
 	return &Sandbox{
+		Config: config,
 		id: uuid.NewString(),
 	}
 }
