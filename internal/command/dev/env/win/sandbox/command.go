@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	sandboxenv "github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/sandbox"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
@@ -18,9 +17,6 @@ type Command struct {
 	sandbox   *sandboxenv.Sandbox
 	product   *product.Product
 }
-
-// Ensure *sandboxCommand implements env.envCommand.
-var _ env.Command = (*Command)(nil)
 
 func NewCommand(product *product.Product) (*Command, error) {
 	sandboxConfig, err := config.LoadSandbox()

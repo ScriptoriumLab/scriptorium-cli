@@ -4,7 +4,6 @@ package dev
 import (
 	"fmt"
 
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/sandbox"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
@@ -16,7 +15,7 @@ import (
 type devCommand struct {
 	workspace  *project.Workspace
 	product    *product.Product
-	envCommand env.Command
+	envCommand envCommand
 }
 
 type devEnv string
@@ -40,6 +39,9 @@ var devCmd = &cobra.Command{
 
 		switch devEnv(envFlag) {
 		case devEnvVM:
+			// Ensure *vmCommand implements envEnvCommand.
+			var _ envCommand = (*vm.Command)(nil)
+
 			vmCmd, err := vm.NewCommand(cmd.product)
 			if err != nil {
 				return err
@@ -47,6 +49,9 @@ var devCmd = &cobra.Command{
 			cmd.envCommand = vmCmd
 
 		case devEnvSandbox:
+			// Ensure *sandboxCommand implements envenvCommand.
+			var _ envCommand = (*sandbox.Command)(nil)
+
 			sandboxCmd, err := sandbox.NewCommand(cmd.product)
 			if err != nil {
 				return err

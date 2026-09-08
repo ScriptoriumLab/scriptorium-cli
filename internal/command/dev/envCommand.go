@@ -1,9 +1,8 @@
-// Package env defines the interface for environment commands in the Scriptorium CLI tool. It provides methods for ensuring, preparing, deploying, starting, monitoring, and cleaning up the environment.
-package env
+package dev
 
 import "github.com/ScriptoriumLab/scriptorium-cli/internal/project"
 
-type Command interface {
+type envCommand interface {
 	EnsureEnv() error
 	PrepareEnv() error
 

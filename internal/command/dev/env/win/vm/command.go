@@ -4,7 +4,6 @@ package vm
 import (
 	"fmt"
 
-	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	vmenv "github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
@@ -17,9 +16,6 @@ type Command struct {
 	machine *vmenv.VM
 	product *product.Product
 }
-
-// Ensure *vmCommand implements env.EnvCommand.
-var _ env.Command = (*Command)(nil)
 
 func NewCommand(product *product.Product) (*Command, error) {
 	vmConfig, err := config.LoadVM()
