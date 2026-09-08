@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/env"
 	"github.com/google/uuid"
 )
 
@@ -22,10 +23,13 @@ type Sandbox struct {
 	TempStagingDir   string
 }
 
+// Compile-time check that *Sandbox implements env.Environment.
+var _ env.Environment = (*Sandbox)(nil)
+
 func New(config *config.SandboxConfig) *Sandbox {
 	return &Sandbox{
 		Config: config,
-		id: uuid.NewString(),
+		id:     uuid.NewString(),
 	}
 }
 

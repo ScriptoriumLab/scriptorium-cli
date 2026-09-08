@@ -9,11 +9,15 @@ import (
 	"time"
 
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/env"
 )
 
 type VM struct {
 	config *config.VMConfig
 }
+
+// Ensure *VM implements env.Environment.
+var _ env.Environment = (*VM)(nil)
 
 func New(config *config.VMConfig) *VM {
 	return &VM{
