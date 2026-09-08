@@ -4,6 +4,9 @@ package dev
 import (
 	"fmt"
 
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/sandbox"
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/project"
@@ -13,7 +16,7 @@ import (
 type devCommand struct {
 	workspace  *project.Workspace
 	product    *product.Product
-	envCommand envCommand
+	envCommand env.EnvCommand
 }
 
 type devEnv string
@@ -23,7 +26,7 @@ const (
 	devEnvSandbox devEnv = "sandbox"
 )
 
-var env string
+var envFlag string
 
 var devCmd = &cobra.Command{
 	Use:   "dev",
@@ -35,23 +38,23 @@ var devCmd = &cobra.Command{
 			return err
 		}
 
-		switch devEnv(env) {
+		switch devEnv(envFlag) {
 		case devEnvVM:
-			vmCmd, err := newVMCommand(cmd.product)
+			vmCmd, err := vm.NewCommand(cmd.product)
 			if err != nil {
 				return err
 			}
 			cmd.envCommand = vmCmd
 
 		case devEnvSandbox:
-			sandboxCmd, err := newSandboxCommand(cmd.product)
+			sandboxCmd, err := sandbox.NewCommand(cmd.product)
 			if err != nil {
 				return err
 			}
 			cmd.envCommand = sandboxCmd
 
 		default:
-			return fmt.Errorf("unsupported development environment: %s", env)
+			return fmt.Errorf("unsupported development environment: %s", envFlag)
 		}
 
 		if err := cmd.execute(); err != nil {
@@ -80,7 +83,7 @@ func newDevCommand() (*devCommand, error) {
 }
 
 func (cmd *devCommand) execute() error {
-	if err := cmd.envCommand.ensureEnv(); err != nil {
+	if err := cmd.envCommand.EnsureEnv(); err != nil {
 		return err
 	}
 
@@ -89,31 +92,31 @@ func (cmd *devCommand) execute() error {
 		return err
 	}
 
-	if err := cmd.envCommand.prepareEnv(); err != nil {
+	if err := cmd.envCommand.PrepareEnv(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.setupProductPrerequisites(); err != nil {
+	if err := cmd.envCommand.SetupProductPrerequisites(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.deployArtifacts(artifacts, cmd.workspace.Dictionary().SourceFile()); err != nil {
+	if err := cmd.envCommand.DeployArtifacts(artifacts, cmd.workspace.Dictionary().SourceFile()); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.startProduct(); err != nil {
+	if err := cmd.envCommand.StartProduct(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.startManualTests(); err != nil {
+	if err := cmd.envCommand.StartManualTests(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.monitorEnv(); err != nil {
+	if err := cmd.envCommand.MonitorEnv(); err != nil {
 		return err
 	}
 
-	if err := cmd.envCommand.cleanupEnv(); err != nil {
+	if err := cmd.envCommand.CleanupEnv(); err != nil {
 		return err
 	}
 
@@ -121,7 +124,7 @@ func (cmd *devCommand) execute() error {
 }
 
 func NewCommand() *cobra.Command {
-	devCmd.Flags().StringVarP(&env, "env", "E", "sandbox", "development environment to use")
+	devCmd.Flags().StringVarP(&envFlag, "env", "E", "sandbox", "development environment to use")
 
 	return devCmd
 }

@@ -1,8 +1,9 @@
-package dev
+package vm
 
 import (
 	"fmt"
 
+	"github.com/ScriptoriumLab/scriptorium-cli/internal/command/dev/env"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 	vmenv "github.com/ScriptoriumLab/scriptorium-cli/internal/env/win/vm"
 	"github.com/ScriptoriumLab/scriptorium-cli/internal/product"
@@ -16,10 +17,10 @@ type vmCommand struct {
 	product *product.Product
 }
 
-// Ensure *vmCommand implements envCommand.
-var _ envCommand = (*vmCommand)(nil)
+// Ensure *vmCommand implements env.EnvCommand.
+var _ env.EnvCommand = (*vmCommand)(nil)
 
-func newVMCommand(product *product.Product) (*vmCommand, error) {
+func NewCommand(product *product.Product) (*vmCommand, error) {
 	vmConfig, err := config.LoadVM()
 	if err != nil {
 		return nil, err
@@ -31,15 +32,15 @@ func newVMCommand(product *product.Product) (*vmCommand, error) {
 	}, nil
 }
 
-func (vmCmd *vmCommand) ensureEnv() error {
+func (vmCmd *vmCommand) EnsureEnv() error {
 	return vmCmd.machine.EnsureAvailable()
 }
 
-func (vmCmd *vmCommand) prepareEnv() error {
+func (vmCmd *vmCommand) PrepareEnv() error {
 	return vmCmd.machine.Prepare()
 }
 
-func (vmCmd *vmCommand) setupProductPrerequisites() error {
+func (vmCmd *vmCommand) SetupProductPrerequisites() error {
 	if err := vmCmd.machine.CreateDir(vmCmd.product.LogPath); err != nil {
 		return fmt.Errorf("failed to create log directory in VM: %w", err)
 	}
@@ -51,7 +52,7 @@ func (vmCmd *vmCommand) setupProductPrerequisites() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
+func (vmCmd *vmCommand) DeployArtifacts(artifacts *project.ProjectArtifacts, dictionarySourcePath string) error {
 	fmt.Println("Deploying Scriptorium artifacts to development VM...")
 	if err := vmCmd.machine.CreateDir(vmCmd.product.Config.ArtifactsPath); err != nil {
 		return fmt.Errorf("failed to create artifact directory in VM: %w", err)
@@ -79,7 +80,7 @@ func (vmCmd *vmCommand) deployArtifacts(artifacts *project.ProjectArtifacts, dic
 	return nil
 }
 
-func (vmCmd *vmCommand) startProduct() error {
+func (vmCmd *vmCommand) StartProduct() error {
 	if err := vmCmd.registerBrush(); err != nil {
 		return err
 	}
@@ -87,7 +88,7 @@ func (vmCmd *vmCommand) startProduct() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) startManualTests() error {
+func (vmCmd *vmCommand) StartManualTests() error {
 	if err := vmCmd.runUseCase(); err != nil {
 		return err
 	}
@@ -95,11 +96,11 @@ func (vmCmd *vmCommand) startManualTests() error {
 	return nil
 }
 
-func (vmCmd *vmCommand) monitorEnv() error {
+func (vmCmd *vmCommand) MonitorEnv() error {
 	return vmCmd.machine.Monitor()
 }
 
-func (vmCmd *vmCommand) cleanupEnv() error {
+func (vmCmd *vmCommand) CleanupEnv() error {
 	return vmCmd.machine.Cleanup()
 }
 
