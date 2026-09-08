@@ -3,7 +3,7 @@ package product
 
 import "github.com/ScriptoriumLab/scriptorium-cli/internal/config"
 
-type ProductArtifacts struct {
+type Artifacts struct {
 	BrushDLL    string
 	InkstoneEXE string
 	InkEXE      string
@@ -14,7 +14,7 @@ type Product struct {
 	LocalPath      string
 	DictionaryPath string
 	LogPath        string
-	Artifacts      *ProductArtifacts
+	Artifacts      *Artifacts
 }
 
 func NewProduct(config *config.ProductConfig) *Product {
@@ -24,7 +24,7 @@ func NewProduct(config *config.ProductConfig) *Product {
 		LocalPath:      localPath,
 		DictionaryPath: localPath + `\pinyin_dictionary.txt`,
 		LogPath:        config.RootPath + `\Log`,
-		Artifacts: &ProductArtifacts{
+		Artifacts: &Artifacts{
 			BrushDLL:    config.ArtifactsPath + `\scriptorium-brush.dll`,
 			InkstoneEXE: config.ArtifactsPath + `\scriptorium-inkstone.exe`,
 			InkEXE:      config.ArtifactsPath + `\scriptorium-ink.exe`,
