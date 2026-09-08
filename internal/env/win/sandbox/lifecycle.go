@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -173,6 +174,83 @@ func (sandbox *Sandbox) isRunning() (bool, error) {
 	_, exists := pids[sandbox.remoteSessionPID]
 
 	return exists, nil
+}
+
+func (sandbox *Sandbox) installVCRuntime(dependenciesDir string) error {
+	installer := filepath.Join(dependenciesDir, "VC_redist.x64.exe")
+
+	command := fmt.Sprintf(
+		`"%s" /install /quiet /norestart`,
+		installer,
+	)
+
+	if err := sandbox.RunCommand(command); err != nil {
+		return fmt.Errorf("failed to install Visual C++ Runtime in Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) installWebView2(dependenciesDir string) error {
+	installer := filepath.Join(
+		dependenciesDir,
+		"MicrosoftEdgeWebView2RuntimeInstallerX64.exe",
+	)
+
+	command := fmt.Sprintf(
+		`"%s" /silent /install`,
+		installer,
+	)
+
+	if err := sandbox.RunCommand(command); err != nil {
+		return fmt.Errorf("failed to install WebView2 Runtime in Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) installNotepadPlusPlus(dependenciesDir string) error {
+	installer := filepath.Join(
+		dependenciesDir,
+		"npp.8.9.8.Installer.x64.exe",
+	)
+
+	command := fmt.Sprintf(
+		`"%s" /S`,
+		installer,
+	)
+
+	if err := sandbox.RunCommand(command); err != nil {
+		return fmt.Errorf("failed to install Notepad++ in Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
+func (sandbox *Sandbox) SetupEnv() error {
+	const hostDependenciesDir = `D:\Projects\Scriptorium\dependencies`
+	const sandboxDependenciesDir = `C:\ScriptoriumDependencies`
+
+	if err := sandbox.ShareFolder(
+		hostDependenciesDir,
+		sandboxDependenciesDir,
+	); err != nil {
+		return fmt.Errorf("failed to share Sandbox dependencies: %w", err)
+	}
+
+	if err := sandbox.installVCRuntime(sandboxDependenciesDir); err != nil {
+		return err
+	}
+
+	if err := sandbox.installWebView2(sandboxDependenciesDir); err != nil {
+		return err
+	}
+
+	if err := sandbox.installNotepadPlusPlus(sandboxDependenciesDir); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (sandbox *Sandbox) Cleanup() error {

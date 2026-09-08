@@ -142,13 +142,13 @@ func (sandboxCmd *sandboxCommand) registerBrush() error {
 }
 
 func (sandboxCmd *sandboxCommand) startInkstone() error {
-	command := fmt.Sprintf(
-		`"%s"`,
+	if err := sandboxCmd.sandbox.RunProgramDetached(
 		sandboxCmd.product.Artifacts.InkstoneEXE,
-	)
-
-	if err := sandboxCmd.sandbox.RunCommand(command); err != nil {
-		return fmt.Errorf("failed to start Inkstone in Windows Sandbox: %w", err)
+	); err != nil {
+		return fmt.Errorf(
+			"failed to start Inkstone in Windows Sandbox: %w",
+			err,
+		)
 	}
 
 	return nil
@@ -156,7 +156,7 @@ func (sandboxCmd *sandboxCommand) startInkstone() error {
 
 func (sandboxCmd *sandboxCommand) startInk() error {
 	command := fmt.Sprintf(
-		`"%s"`,
+		`powershell.exe -NoProfile -Command "$env:WEBVIEW2_BROWSER_EXECUTABLE_FOLDER='C:\Program Files (x86)\Microsoft\EdgeWebView\Application\152.0.4191.66'; Start-Process -FilePath '%s'"`,
 		sandboxCmd.product.Artifacts.InkEXE,
 	)
 
@@ -196,12 +196,31 @@ func (sandboxCmd *sandboxCommand) createTestTextFile() error {
 	return nil
 }
 
+func (sandboxCmd *sandboxCommand) runNotepadPlusPlus() error {
+	const notepadPlusPlus = `C:\Program Files\Notepad++\notepad++.exe`
+	const testFile = `C:\Users\WDAGUtilityAccount\Desktop\scriptorium-test.txt`
+
+	command := fmt.Sprintf(
+		`powershell.exe -NoProfile -Command "Start-Process -FilePath '%s' -ArgumentList '%s'"`,
+		notepadPlusPlus,
+		testFile,
+	)
+
+	if err := sandboxCmd.sandbox.RunCommand(command); err != nil {
+		return fmt.Errorf("failed to start Notepad++ in Windows Sandbox: %w", err)
+	}
+
+	return nil
+}
+
 func (sandboxCmd *sandboxCommand) startManualTest() error {
 	if err := sandboxCmd.createTestTextFile(); err != nil {
 		return err
 	}
 
-	// TODO: open notepad++
+	if err := sandboxCmd.runNotepadPlusPlus(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -238,6 +257,10 @@ func (sandboxCmd *sandboxCommand) execute() error {
 	}
 
 	if err := sandboxCmd.sandbox.Connect(); err != nil {
+		return err
+	}
+
+	if err := sandboxCmd.sandbox.SetupEnv(); err != nil {
 		return err
 	}
 

@@ -4,8 +4,34 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
+
+func (sandbox *Sandbox) RunProgramDetached(program string, args ...string) error {
+	argumentList := ""
+
+	if len(args) > 0 {
+		quoted := make([]string, 0, len(args))
+
+		for _, arg := range args {
+			quoted = append(quoted, fmt.Sprintf("'%s'", arg))
+		}
+
+		argumentList = fmt.Sprintf(
+			" -ArgumentList %s",
+			strings.Join(quoted, ","),
+		)
+	}
+
+	command := fmt.Sprintf(
+		`powershell.exe -NoProfile -Command "Start-Process -FilePath '%s'%s"`,
+		program,
+		argumentList,
+	)
+
+	return sandbox.RunCommand(command)
+}
 
 func (sandbox *Sandbox) RunCommand(command string) error {
 	if err := sandbox.waitForInteractiveSession(); err != nil {
