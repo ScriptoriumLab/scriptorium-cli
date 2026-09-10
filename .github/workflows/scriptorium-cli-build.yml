@@ -30,6 +30,9 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      - name: Vet orium
+        run: go vet ./...
+
       - name: Build orium
         run: go build -trimpath -o dist/orium.exe ./cmd/orium
 
